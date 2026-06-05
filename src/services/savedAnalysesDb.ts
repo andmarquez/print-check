@@ -1,4 +1,4 @@
-import type { AnalysisResult, CostInputs } from '../types/analysis'
+import type { AnalysisResult, PrintCalculationInputs } from '../types/analysis'
 
 export interface SavedAnalysisRecord {
   id: string
@@ -6,7 +6,7 @@ export interface SavedAnalysisRecord {
   fileSize: number
   savedAt: string
   analysis: AnalysisResult
-  costInputs: CostInputs
+  costInputs: PrintCalculationInputs
   thumbnail?: string
   stlData?: ArrayBuffer
 }

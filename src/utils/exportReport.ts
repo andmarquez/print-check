@@ -32,8 +32,28 @@ export function generateReportText(
 
   lines.push('── COST ANALYSIS ──')
   lines.push(`Material Cost: $${costBreakdown.materialCost.toFixed(2)}`)
-  lines.push(`Electricity Cost: $${costBreakdown.electricityCost.toFixed(2)}`)
+  lines.push(`Electricity Cost: $${costBreakdown.electricityCost.toFixed(2)} (${costBreakdown.energyKwh.toFixed(3)} kWh estimated)`)
+  if (costBreakdown.machineCost > 0) {
+    lines.push(`Machine Time: $${costBreakdown.machineCost.toFixed(2)}`)
+  }
+  if (costBreakdown.setupFee > 0) {
+    lines.push(`Setup Fee: $${costBreakdown.setupFee.toFixed(2)}`)
+  }
   lines.push(`Total Estimated Cost: $${costBreakdown.totalCost.toFixed(2)}`)
+  lines.push('')
+
+  lines.push('── SETTINGS SUMMARY ──')
+  const s = analysis.settingsSummary
+  lines.push(`Model size: ${s.modelSize}`)
+  lines.push(`Material: ${s.material}`)
+  lines.push(`Printer: ${s.printer}`)
+  lines.push(`Layer height: ${s.layerHeight}`)
+  lines.push(`Infill: ${s.infill}`)
+  lines.push(`Supports: ${s.supports}`)
+  lines.push(`Estimated time: ${s.estimatedTime}`)
+  lines.push(`Filament: ${s.filament}`)
+  lines.push(`Energy: ${s.energy}`)
+  lines.push(`Total cost: ${s.totalCost}`)
   lines.push('')
 
   lines.push('── PRINT HEALTH REPORT ──')
@@ -156,7 +176,22 @@ export async function downloadPdfReport(
   y += 4
 
   section('Cost Analysis')
-  line(`Material: $${costBreakdown.materialCost.toFixed(2)}  |  Electricity: $${costBreakdown.electricityCost.toFixed(2)}  |  Total: $${costBreakdown.totalCost.toFixed(2)}`)
+  line(
+    `Material: $${costBreakdown.materialCost.toFixed(2)}  |  Electricity: $${costBreakdown.electricityCost.toFixed(2)} (${costBreakdown.energyKwh.toFixed(3)} kWh)  |  Total: $${costBreakdown.totalCost.toFixed(2)}`
+  )
+  if (costBreakdown.machineCost > 0 || costBreakdown.setupFee > 0) {
+    line(
+      `Machine: $${costBreakdown.machineCost.toFixed(2)}  |  Setup: $${costBreakdown.setupFee.toFixed(2)}`
+    )
+  }
+  y += 4
+
+  section('Settings Summary')
+  const s = analysis.settingsSummary
+  line(`${s.modelSize}  |  ${s.material}  |  ${s.printer}`)
+  line(`${s.layerHeight}  |  Infill ${s.infill}  |  ${s.supports}`)
+  line(`${s.estimatedTime}  |  ${s.filament}  |  ${s.energy}`)
+  line(`Total: ${s.totalCost}`)
   y += 4
 
   section('Print Health Report')

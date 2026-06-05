@@ -1,9 +1,11 @@
 import * as THREE from 'three'
 import { STLLoader } from 'three/addons/loaders/STLLoader.js'
+import { centerOnBuildPlate } from './geometryOrientation'
 
 export interface GeometryStats {
   triangleCount: number
   vertexCount: number
+  originalDimensions: { x: number; y: number; z: number }
   dimensions: { x: number; y: number; z: number }
   volumeMm3: number
   volumeCm3: number
@@ -37,7 +39,8 @@ function quantize(v: THREE.Vector3, precision = 4): string {
 
 export async function loadSTLGeometry(url: string): Promise<THREE.BufferGeometry> {
   const loader = new STLLoader()
-  const geometry = await loader.loadAsync(url)
+  const raw = await loader.loadAsync(url)
+  const geometry = centerOnBuildPlate(raw)
   geometry.computeBoundingBox()
   geometry.computeVertexNormals()
   return geometry
@@ -136,6 +139,11 @@ export function analyzeGeometry(geometry: THREE.BufferGeometry): GeometryStats {
   return {
     triangleCount,
     vertexCount: position.count,
+    originalDimensions: {
+      x: round(size.x),
+      y: round(size.y),
+      z: round(size.z),
+    },
     dimensions: {
       x: round(size.x),
       y: round(size.y),

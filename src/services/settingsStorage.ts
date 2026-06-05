@@ -13,7 +13,7 @@ const DEFAULTS: AppSettings = {
   openaiApiKey: '',
   aiModel: 'gpt-4o-mini',
   filamentPricePerKg: 22,
-  electricityCostPerKwh: 0.14,
+  electricityCostPerKwh: 0.16,
   defaultPrinterProfile: 'Bambu Lab P1S',
   defaultMaterialType: 'PLA+',
 }

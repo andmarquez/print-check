@@ -1,44 +1,53 @@
-import { useCallback, useRef, useState } from 'react'
+import { useCallback, useMemo, useRef, useState } from 'react'
 import type { SavedAnalysisRecord } from '../services/savedAnalysesDb'
 import { saveAnalysis } from '../services/savedAnalysesDb'
-import { getSettings } from '../services/settingsStorage'
-import { stlAnalysisEngine } from '../services/stlAnalysisEngine'
+import { buildAnalysisFromStats } from '../services/buildAnalysisFromStats'
+import type { GeometryStats } from '../services/geometryAnalyzer'
+import { loadSTLGeometry, analyzeGeometry } from '../services/geometryAnalyzer'
+import { analyzeStlWithStats } from '../services/stlAnalysisEngine'
 import type {
   AnalysisResult,
   AppPhase,
-  CostInputs,
+  ModelDimensions,
+  PrintCalculationInputs,
   ScanStage,
   STLFileInfo,
 } from '../types/analysis'
 import { SCAN_STAGES } from '../types/analysis'
-
-function defaultCostInputs(): CostInputs {
-  const s = getSettings()
-  return {
-    filamentPricePerKg: s.filamentPricePerKg,
-    materialType: s.defaultMaterialType,
-    printerProfile: s.defaultPrinterProfile,
-    electricityCostPerKwh: s.electricityCostPerKwh,
-    printSpeed: 50,
-    layerHeight: 0.16,
-    infillPercentage: 15,
-  }
-}
+import { getPrinterProfile } from '../data/printerProfiles'
+import {
+  calculateScaledDimensions,
+  defaultPrintInputs,
+} from '../utils/calculations'
 
 export function useAnalysis() {
   const [phase, setPhase] = useState<AppPhase>('empty')
   const [stlFile, setStlFile] = useState<STLFileInfo | null>(null)
   const [scanStage, setScanStage] = useState<ScanStage>('idle')
   const [scanProgress, setScanProgress] = useState(0)
-  const [analysis, setAnalysis] = useState<AnalysisResult | null>(null)
-  const [costInputs, setCostInputs] = useState<CostInputs>(defaultCostInputs)
+  const [geometryStats, setGeometryStats] = useState<GeometryStats | null>(null)
+  const [originalDimensions, setOriginalDimensions] = useState<ModelDimensions | null>(null)
+  const [aiRecommendations, setAiRecommendations] = useState<string[] | null>(null)
+  const [savedSnapshot, setSavedSnapshot] = useState<AnalysisResult | null>(null)
+  const [printInputs, setPrintInputs] = useState<PrintCalculationInputs | null>(null)
   const [revealedSections, setRevealedSections] = useState<string[]>([])
   const viewerCanvasRef = useRef<HTMLCanvasElement | null>(null)
 
+  const analysis = useMemo(() => {
+    if (geometryStats && printInputs) {
+      return buildAnalysisFromStats(
+        geometryStats,
+        printInputs,
+        aiRecommendations ?? undefined
+      )
+    }
+    return savedSnapshot
+  }, [geometryStats, printInputs, aiRecommendations, savedSnapshot])
+
   const revealSections = useCallback(async () => {
-    const sections = ['metrics', 'health', 'ai', 'settings', 'orientation', 'cost']
+    const sections = ['summary', 'metrics', 'health', 'ai', 'settings', 'orientation', 'cost']
     for (const section of sections) {
-      await new Promise((r) => setTimeout(r, 200))
+      await new Promise((r) => setTimeout(r, 180))
       setRevealedSections((prev) => [...prev, section])
     }
   }, [])
@@ -59,74 +68,133 @@ export function useAnalysis() {
     setScanProgress(100)
   }, [])
 
-  const handleFileUpload = useCallback(
-    async (file: File) => {
-      const url = URL.createObjectURL(file)
-      const info: STLFileInfo = { file, name: file.name, size: file.size, url }
-
-      setStlFile(info)
-      setPhase('loaded')
-      setAnalysis(null)
-      setRevealedSections([])
-
-      await new Promise((r) => setTimeout(r, 600))
-      setPhase('scanning')
-      await runScanSequence()
-
-      setPhase('analyzing')
-      const result = await stlAnalysisEngine.analyze(info, costInputs)
-      setAnalysis(result)
-      setPhase('complete')
-      await revealSections()
-    },
-    [costInputs, runScanSequence, revealSections]
-  )
-
-  const updateCostInputs = useCallback(
-    async (updates: Partial<CostInputs>) => {
-      const next = { ...costInputs, ...updates }
-      setCostInputs(next)
-      if (stlFile && analysis) {
-        const updated = await stlAnalysisEngine.analyze(stlFile, next)
-        setAnalysis(updated)
-      }
-    },
-    [costInputs, stlFile, analysis]
-  )
-
-  const loadSavedRecord = useCallback(async (record: SavedAnalysisRecord) => {
-    if (stlFile?.url) URL.revokeObjectURL(stlFile.url)
-
-    let url = ''
-    let file: File
-
-    if (record.stlData) {
-      const blob = new Blob([record.stlData], { type: 'application/octet-stream' })
-      url = URL.createObjectURL(blob)
-      file = new File([blob], record.fileName, { type: 'application/octet-stream' })
-    } else {
-      file = new File([], record.fileName)
-      url = ''
-    }
-
-    const info: STLFileInfo = {
-      file,
-      name: record.fileName,
-      size: record.fileSize,
-      url,
-    }
+  const handleFileUpload = useCallback(async (file: File) => {
+    const url = URL.createObjectURL(file)
+    const info: STLFileInfo = { file, name: file.name, size: file.size, url }
 
     setStlFile(info)
-    setAnalysis(record.analysis)
-    setCostInputs(record.costInputs)
+    setGeometryStats(null)
+    setAiRecommendations(null)
+    setSavedSnapshot(null)
+    setRevealedSections([])
+
+    const geometry = await loadSTLGeometry(url)
+    const stats = analyzeGeometry(geometry)
+    const original = stats.originalDimensions
+
+    setGeometryStats(stats)
+    setOriginalDimensions(original)
+    setPrintInputs(defaultPrintInputs(original))
+    setPhase('sizing')
+  }, [])
+
+  const updatePrintInputs = useCallback(
+    (updates: Partial<PrintCalculationInputs>, changedAxis?: 'width' | 'height' | 'depth') => {
+      setPrintInputs((prev) => {
+        if (!prev || !originalDimensions) return prev
+
+        const next = { ...prev, ...updates }
+
+        if (updates.desiredSize || changedAxis) {
+          const desired = updates.desiredSize ?? next.desiredSize
+          const { scaledDimensionsMm, scaleFactor } = calculateScaledDimensions(
+            originalDimensions,
+            desired,
+            changedAxis
+          )
+          next.desiredSize = desired
+          next.scaledDimensionsMm = scaledDimensionsMm
+          next.scaleFactor = scaleFactor
+        }
+
+        if (updates.qualityPreset && !updates.layerHeight) {
+          const preset = updates.qualityPreset
+          const layers = { draft: 0.28, standard: 0.2, high: 0.16, ultra: 0.12 } as const
+          next.layerHeight = layers[preset]
+        }
+
+        if (updates.printerProfileId === 'custom' && !next.customPrinter) {
+          next.customPrinter = {
+            printSpeedMmS: 50,
+            powerWatts: 160,
+            buildVolumeX: 220,
+            buildVolumeY: 220,
+            buildVolumeZ: 250,
+            nozzleSizeMm: 0.4,
+          }
+        } else if (updates.printerProfileId && updates.printerProfileId !== 'custom') {
+          const profile = getPrinterProfile(updates.printerProfileId)
+          next.layerHeight = profile.defaultLayerHeightMm
+        }
+
+        return next
+      })
+    },
+    [originalDimensions]
+  )
+
+  const startAnalysis = useCallback(async () => {
+    if (!stlFile || !printInputs || !geometryStats) return
+
+    setPhase('scanning')
+    setRevealedSections([])
+    await runScanSequence()
+
+    setPhase('analyzing')
+    const { result } = await analyzeStlWithStats(stlFile, printInputs, geometryStats)
+    setAiRecommendations(result.aiRecommendations)
     setPhase('complete')
-    setScanStage('complete')
-    setScanProgress(100)
-    setRevealedSections(['metrics', 'health', 'ai', 'settings', 'orientation', 'cost'])
-  }, [stlFile])
+    await revealSections()
+  }, [stlFile, printInputs, geometryStats, runScanSequence, revealSections])
+
+  const loadSavedRecord = useCallback(
+    async (record: SavedAnalysisRecord) => {
+      if (stlFile?.url) URL.revokeObjectURL(stlFile.url)
+
+      let url = ''
+      let file: File
+
+      if (record.stlData) {
+        const blob = new Blob([record.stlData], { type: 'application/octet-stream' })
+        url = URL.createObjectURL(blob)
+        file = new File([blob], record.fileName, { type: 'application/octet-stream' })
+      } else {
+        file = new File([], record.fileName)
+        url = ''
+      }
+
+      const info: STLFileInfo = {
+        file,
+        name: record.fileName,
+        size: record.fileSize,
+        url,
+      }
+
+      setAiRecommendations(record.analysis.aiRecommendations)
+      setPrintInputs(record.costInputs as PrintCalculationInputs)
+
+      if (url) {
+        const geometry = await loadSTLGeometry(url)
+        const stats = analyzeGeometry(geometry)
+        setGeometryStats(stats)
+        setOriginalDimensions(stats.originalDimensions)
+        setSavedSnapshot(null)
+      } else {
+        setGeometryStats(null)
+        setSavedSnapshot(record.analysis)
+      }
+
+      setStlFile(info)
+      setPhase('complete')
+      setScanStage('complete')
+      setScanProgress(100)
+      setRevealedSections(['summary', 'metrics', 'health', 'ai', 'settings', 'orientation', 'cost'])
+    },
+    [stlFile]
+  )
 
   const saveCurrentAnalysis = useCallback(async () => {
-    if (!stlFile || !analysis) return null
+    if (!stlFile || !analysis || !printInputs) return null
 
     const thumbnail = viewerCanvasRef.current
       ? viewerCanvasRef.current.toDataURL('image/png', 0.85)
@@ -136,7 +204,7 @@ export function useAnalysis() {
     try {
       stlData = await stlFile.file.arrayBuffer()
     } catch {
-      /* file may be empty when loaded from saved without blob */
+      /* ignore */
     }
 
     const record: SavedAnalysisRecord = {
@@ -145,14 +213,14 @@ export function useAnalysis() {
       fileSize: stlFile.size,
       savedAt: new Date().toISOString(),
       analysis,
-      costInputs,
+      costInputs: printInputs,
       thumbnail,
       stlData,
     }
 
     await saveAnalysis(record)
     return record
-  }, [stlFile, analysis, costInputs])
+  }, [stlFile, analysis, printInputs])
 
   const reset = useCallback(() => {
     if (stlFile?.url) URL.revokeObjectURL(stlFile.url)
@@ -160,7 +228,11 @@ export function useAnalysis() {
     setPhase('empty')
     setScanStage('idle')
     setScanProgress(0)
-    setAnalysis(null)
+    setGeometryStats(null)
+    setOriginalDimensions(null)
+    setAiRecommendations(null)
+    setSavedSnapshot(null)
+    setPrintInputs(null)
     setRevealedSections([])
   }, [stlFile])
 
@@ -173,29 +245,22 @@ export function useAnalysis() {
     return viewerCanvasRef.current.toDataURL('image/png', 0.92)
   }, [])
 
-  const refreshSettingsDefaults = useCallback(() => {
-    setCostInputs((prev) => ({
-      ...prev,
-      filamentPricePerKg: getSettings().filamentPricePerKg,
-      electricityCostPerKwh: getSettings().electricityCostPerKwh,
-    }))
-  }, [])
-
   return {
     phase,
     stlFile,
     scanStage,
     scanProgress,
     analysis,
-    costInputs,
+    printInputs,
+    originalDimensions,
     revealedSections,
     handleFileUpload,
-    updateCostInputs,
+    updatePrintInputs,
+    startAnalysis,
     loadSavedRecord,
     saveCurrentAnalysis,
     reset,
     registerViewerCanvas,
     getPreviewDataUrl,
-    refreshSettingsDefaults,
   }
 }

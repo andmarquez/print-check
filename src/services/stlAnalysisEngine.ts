@@ -1,37 +1,27 @@
-import type { AnalysisEngine, AnalysisResult, CostInputs, STLFileInfo } from '../types/analysis'
-import {
-  buildIssuesFromStats,
-  buildMetricsFromStats,
-  buildOrientationFromStats,
-  buildPrintSettingsFromStats,
-  buildRuleBasedRecommendations,
-  calculateCostBreakdown,
-} from './analysisRecommendations'
-import { analyzeGeometry, loadSTLGeometry } from './geometryAnalyzer'
+import type { AnalysisResult, PrintCalculationInputs, STLFileInfo } from '../types/analysis'
+import { buildIssuesFromStats, buildRuleBasedRecommendations } from './analysisRecommendations'
+import { buildAnalysisFromStats } from './buildAnalysisFromStats'
+import { analyzeGeometry, loadSTLGeometry, type GeometryStats } from './geometryAnalyzer'
 import { generateAIRecommendations } from './aiAdvisorService'
 
-export const stlAnalysisEngine: AnalysisEngine = {
-  async analyze(file: STLFileInfo, costInputs: CostInputs): Promise<AnalysisResult> {
-    const geometry = await loadSTLGeometry(file.url)
-    const stats = analyzeGeometry(geometry)
+export async function analyzeStlWithStats(
+  file: STLFileInfo,
+  inputs: PrintCalculationInputs,
+  existingStats?: GeometryStats
+): Promise<{ result: AnalysisResult; stats: GeometryStats }> {
+  const stats = existingStats ?? analyzeGeometry(await loadSTLGeometry(file.url))
+  const issues = buildIssuesFromStats(stats)
+  const ruleBasedRecs = buildRuleBasedRecommendations(stats)
+  const aiRecommendations = await generateAIRecommendations(stats, issues, ruleBasedRecs)
+  const result = buildAnalysisFromStats(stats, inputs, aiRecommendations)
+  return { result, stats }
+}
 
-    const metrics = buildMetricsFromStats(stats, costInputs)
-    const issues = buildIssuesFromStats(stats)
-    const printSettings = buildPrintSettingsFromStats(stats, costInputs)
-    const orientation = buildOrientationFromStats(stats)
-    const ruleBasedRecs = buildRuleBasedRecommendations(stats)
-
-    const aiRecommendations = await generateAIRecommendations(stats, issues, ruleBasedRecs)
-
-    const result: AnalysisResult = {
-      metrics,
-      issues,
-      aiRecommendations,
-      printSettings,
-      orientation,
-      costBreakdown: calculateCostBreakdown(metrics, costInputs),
-    }
-
+export const stlAnalysisEngine = {
+  analyze: async (file: STLFileInfo, inputs: PrintCalculationInputs) => {
+    const { result } = await analyzeStlWithStats(file, inputs)
     return result
   },
 }
+
+export { buildAnalysisFromStats }

@@ -9,8 +9,57 @@ export type ScanStage =
   | 'complete'
 
 export type IssueSeverity = 'none' | 'low' | 'medium' | 'high' | 'critical'
-
 export type IssueStatus = 'pass' | 'warning' | 'fail'
+export type SizeUnit = 'mm' | 'cm' | 'in'
+export type QualityPreset = 'draft' | 'standard' | 'high' | 'ultra'
+export type AppPhase = 'empty' | 'sizing' | 'scanning' | 'analyzing' | 'complete'
+
+export interface ModelDimensions {
+  x: number
+  y: number
+  z: number
+}
+
+export interface DesiredSize {
+  width: number
+  height: number
+  depth: number
+  unit: SizeUnit
+  lockProportions: boolean
+}
+
+export interface CustomPrinterSettings {
+  printSpeedMmS: number
+  powerWatts: number
+  buildVolumeX: number
+  buildVolumeY: number
+  buildVolumeZ: number
+  nozzleSizeMm: number
+}
+
+export interface PrintCalculationInputs {
+  desiredSize: DesiredSize
+  scaleFactor: number
+  scaledDimensionsMm: ModelDimensions
+  printerProfileId: string
+  customPrinter: CustomPrinterSettings | null
+  materialType: string
+  infillPercentage: number
+  wallCount: number
+  topLayers: number
+  bottomLayers: number
+  layerHeight: number
+  qualityPreset: QualityPreset
+  filamentPricePerKg: number
+  electricityCostPerKwh: number
+  machineHourlyRate: number
+  setupFee: number
+  supportsEnabled: boolean
+  applyRecommendedOrientation: boolean
+}
+
+/** @deprecated use PrintCalculationInputs */
+export type CostInputs = PrintCalculationInputs
 
 export interface PrintIssue {
   id: string
@@ -38,10 +87,54 @@ export interface OrientationData {
   riskReduction: string
 }
 
+export interface MaterialEstimate {
+  modelGrams: number
+  supportGrams: number
+  totalGrams: number
+  wallGrams: number
+  infillGrams: number
+  topBottomGrams: number
+}
+
+export interface PrintTimeEstimate {
+  hours: number
+  minutes: number
+  label: string
+}
+
+export interface EnergyEstimate {
+  kwh: number
+  cost: number
+  watts: number
+}
+
+export interface CostBreakdown {
+  materialCost: number
+  electricityCost: number
+  machineCost: number
+  setupFee: number
+  totalCost: number
+  printTimeHours: number
+  energyKwh: number
+}
+
+export interface SettingsSummary {
+  modelSize: string
+  material: string
+  printer: string
+  layerHeight: string
+  infill: string
+  supports: string
+  estimatedTime: string
+  filament: string
+  energy: string
+  totalCost: string
+}
+
 export interface AnalysisMetrics {
   printTimeHours: number
   materialGrams: number
-  dimensions: { x: number; y: number; z: number }
+  dimensions: ModelDimensions
   volumeCm3: number
   weightGrams: number
   materialCost: number
@@ -49,23 +142,8 @@ export interface AnalysisMetrics {
   riskScore: number
   supportRequirement: 'none' | 'minimal' | 'moderate' | 'heavy'
   printabilityScore: number
-}
-
-export interface CostInputs {
-  filamentPricePerKg: number
-  materialType: string
-  printerProfile: string
-  electricityCostPerKwh: number
-  printSpeed: number
-  layerHeight: number
-  infillPercentage: number
-}
-
-export interface CostBreakdown {
-  materialCost: number
-  electricityCost: number
-  totalCost: number
-  printTimeHours: number
+  scaleFactor: number
+  isEstimated: boolean
 }
 
 export interface AnalysisResult {
@@ -75,6 +153,9 @@ export interface AnalysisResult {
   printSettings: PrintSetting[]
   orientation: OrientationData
   costBreakdown: CostBreakdown
+  materialEstimate: MaterialEstimate
+  energyEstimate: EnergyEstimate
+  settingsSummary: SettingsSummary
 }
 
 export interface STLFileInfo {
@@ -84,10 +165,8 @@ export interface STLFileInfo {
   url: string
 }
 
-export type AppPhase = 'empty' | 'loaded' | 'scanning' | 'analyzing' | 'complete'
-
 export interface AnalysisEngine {
-  analyze(file: STLFileInfo, costInputs: CostInputs): Promise<AnalysisResult>
+  analyze(file: STLFileInfo, inputs: PrintCalculationInputs): Promise<AnalysisResult>
 }
 
 export const SCAN_STAGES: { stage: ScanStage; label: string; duration: number }[] = [
@@ -97,4 +176,11 @@ export const SCAN_STAGES: { stage: ScanStage; label: string; duration: number }[
   { stage: 'detecting_overhangs', label: 'Detecting Overhangs', duration: 2400 },
   { stage: 'estimating_supports', label: 'Estimating Supports', duration: 2000 },
   { stage: 'generating_settings', label: 'Generating Print Settings', duration: 1800 },
+]
+
+export const QUALITY_PRESETS: { id: QualityPreset; label: string; layerHeight: number; factor: number }[] = [
+  { id: 'draft', label: 'Draft', layerHeight: 0.28, factor: 0.82 },
+  { id: 'standard', label: 'Standard', layerHeight: 0.2, factor: 1.0 },
+  { id: 'high', label: 'High Detail', layerHeight: 0.16, factor: 1.22 },
+  { id: 'ultra', label: 'Ultra Detail', layerHeight: 0.12, factor: 1.55 },
 ]

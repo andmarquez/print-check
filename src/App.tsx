@@ -1,7 +1,8 @@
-import { useCallback, useRef, useState } from 'react'
+import { useState } from 'react'
 import { AIPrintAdvisor } from './components/AIPrintAdvisor'
 import { AnalysisDashboard } from './components/AnalysisDashboard'
 import { CostCalculator } from './components/CostCalculator'
+import { DesiredSizePanel } from './components/DesiredSizePanel'
 import { ExportReportButton } from './components/ExportReportButton'
 import { ModelViewer } from './components/ModelViewer/ModelViewer'
 import { OrientationComparison } from './components/OrientationComparison'
@@ -10,6 +11,7 @@ import { PrintSettingsPanel } from './components/PrintSettingsPanel'
 import { SavedAnalysesPanel } from './components/SavedAnalysesPanel'
 import { ScanAnimation } from './components/ScanAnimation'
 import { SettingsPanel } from './components/SettingsPanel'
+import { SettingsSummaryCard } from './components/SettingsSummaryCard'
 import { STLUploader } from './components/STLUploader'
 import { StatsDock } from './components/layout/StatsDock'
 import { TopNav } from './components/layout/TopNav'
@@ -24,7 +26,6 @@ function getSiteUrl(): string | undefined {
 }
 
 export default function App() {
-  const uploadRef = useRef<HTMLInputElement>(null)
   const [settingsOpen, setSettingsOpen] = useState(false)
   const [savedOpen, setSavedOpen] = useState(false)
   const [saveToast, setSaveToast] = useState<string | null>(null)
@@ -35,37 +36,40 @@ export default function App() {
     scanStage,
     scanProgress,
     analysis,
-    costInputs,
+    printInputs,
+    originalDimensions,
     revealedSections,
     handleFileUpload,
-    updateCostInputs,
+    updatePrintInputs,
+    startAnalysis,
     loadSavedRecord,
     saveCurrentAnalysis,
     registerViewerCanvas,
     getPreviewDataUrl,
-    refreshSettingsDefaults,
   } = useAnalysis()
 
-  const triggerUpload = useCallback(() => {
-    uploadRef.current?.click()
-  }, [])
+  const triggerUpload = () => document.getElementById('stl-upload-input')?.click()
 
-  const handleSave = useCallback(async () => {
+  const handleSave = async () => {
     await saveCurrentAnalysis()
     setSaveToast('Analysis saved locally')
     setTimeout(() => setSaveToast(null), 2500)
-  }, [saveCurrentAnalysis])
+  }
 
-  const loadSample = useCallback(async () => {
+  const loadSample = async () => {
     const res = await fetch(`${import.meta.env.BASE_URL}assets/sample-models/demo-pyramid.stl`)
     const blob = await res.blob()
-    const file = new File([blob], 'demo-pyramid.stl', { type: 'application/octet-stream' })
-    handleFileUpload(file)
-  }, [handleFileUpload])
+    handleFileUpload(new File([blob], 'demo-pyramid.stl', { type: 'application/octet-stream' }))
+  }
 
   const isScanning = phase === 'scanning'
   const isComplete = phase === 'complete'
   const hasFile = stlFile !== null
+
+  const viewerRotation =
+    printInputs?.applyRecommendedOrientation && analysis
+      ? analysis.orientation.recommended
+      : { x: 0, y: 0, z: 0 }
 
   return (
     <div className="flex h-full flex-col bg-warm-white">
@@ -90,25 +94,18 @@ export default function App() {
             scanning={isScanning}
             scanStage={scanStage}
             scanProgress={scanProgress}
+            rotationDeg={viewerRotation}
             onCanvasReady={registerViewerCanvas}
           />
 
-          <ScanAnimation
-            scanning={isScanning}
-            scanStage={scanStage}
-            scanProgress={scanProgress}
-          />
+          <ScanAnimation scanning={isScanning} scanStage={scanStage} scanProgress={scanProgress} />
 
-          <STLUploader
-            onFileSelect={handleFileUpload}
-            visible={phase === 'empty'}
-            onTrySample={loadSample}
-          />
+          <STLUploader onFileSelect={handleFileUpload} visible={phase === 'empty'} onTrySample={loadSample} />
 
           <StatsDock analysis={analysis} visible={isComplete} />
 
           <input
-            ref={uploadRef}
+            id="stl-upload-input"
             type="file"
             accept=".stl"
             className="hidden"
@@ -123,12 +120,9 @@ export default function App() {
         <aside className="scrollbar-thin flex min-w-0 flex-[2] flex-col gap-4 overflow-y-auto pr-1">
           {!hasFile && (
             <div className="glass-panel flex flex-1 flex-col items-center justify-center rounded-2xl p-8 text-center">
-              <p className="font-display text-4xl font-light tracking-tight text-charcoal/20">
-                Analysis
-              </p>
+              <p className="font-display text-4xl font-light tracking-tight text-charcoal/20">Analysis</p>
               <p className="mt-3 max-w-xs text-sm leading-relaxed text-charcoal-soft">
-                Upload an STL file to begin real geometry analysis with print recommendations and
-                cost estimates.
+                Upload an STL, set your desired print size, then run a physics-based pre-flight check.
               </p>
               <button
                 type="button"
@@ -140,32 +134,43 @@ export default function App() {
             </div>
           )}
 
-          {analysis && (
+          {phase === 'sizing' && printInputs && originalDimensions && (
+            <DesiredSizePanel
+              originalDimensions={originalDimensions}
+              inputs={printInputs}
+              onUpdate={updatePrintInputs}
+              onStartAnalysis={startAnalysis}
+              visible
+            />
+          )}
+
+          {analysis && printInputs && (
             <>
+              <SettingsSummaryCard
+                summary={analysis.settingsSummary}
+                visible={revealedSections.includes('summary')}
+              />
               <AnalysisDashboard
                 metrics={analysis.metrics}
+                costBreakdown={analysis.costBreakdown}
                 visible={revealedSections.includes('metrics')}
               />
-              <PrintHealthReport
-                issues={analysis.issues}
-                visible={revealedSections.includes('health')}
-              />
+              <PrintHealthReport issues={analysis.issues} visible={revealedSections.includes('health')} />
               <AIPrintAdvisor
                 recommendations={analysis.aiRecommendations}
                 visible={revealedSections.includes('ai')}
               />
-              <PrintSettingsPanel
-                settings={analysis.printSettings}
-                visible={revealedSections.includes('settings')}
-              />
+              <PrintSettingsPanel settings={analysis.printSettings} visible={revealedSections.includes('settings')} />
               <OrientationComparison
                 orientation={analysis.orientation}
+                applyRecommended={printInputs.applyRecommendedOrientation}
+                onApplyRecommended={(apply) => updatePrintInputs({ applyRecommendedOrientation: apply })}
                 visible={revealedSections.includes('orientation')}
               />
               <CostCalculator
-                inputs={costInputs}
-                breakdown={analysis.costBreakdown}
-                onUpdate={updateCostInputs}
+                inputs={printInputs}
+                analysis={analysis}
+                onUpdate={updatePrintInputs}
                 visible={revealedSections.includes('cost')}
               />
               {stlFile && (
@@ -184,24 +189,16 @@ export default function App() {
             <div className="glass-panel flex flex-col items-center justify-center rounded-2xl p-8 text-center">
               <div className="h-8 w-8 animate-spin rounded-full border-2 border-sand border-t-electric-blue" />
               <p className="mt-4 font-display text-lg font-light text-charcoal">
-                {phase === 'scanning' ? 'Scanning model...' : 'Analyzing geometry...'}
+                {phase === 'scanning' ? 'Scanning model...' : 'Calculating estimates...'}
               </p>
             </div>
           )}
         </aside>
       </main>
 
-      <SettingsPanel
-        open={settingsOpen}
-        onClose={() => setSettingsOpen(false)}
-        onSaved={refreshSettingsDefaults}
-      />
+      <SettingsPanel open={settingsOpen} onClose={() => setSettingsOpen(false)} onSaved={() => {}} />
 
-      <SavedAnalysesPanel
-        open={savedOpen}
-        onClose={() => setSavedOpen(false)}
-        onLoad={loadSavedRecord}
-      />
+      <SavedAnalysesPanel open={savedOpen} onClose={() => setSavedOpen(false)} onLoad={loadSavedRecord} />
     </div>
   )
 }
