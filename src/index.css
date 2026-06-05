@@ -1,0 +1,83 @@
+@import "tailwindcss";
+
+@theme {
+  --color-warm-white: #faf8f5;
+  --color-sand: #e8e2d9;
+  --color-cream: #f5f0e8;
+  --color-soft-gray: #b8b4ae;
+  --color-light-beige: #d9d3c8;
+  --color-electric-blue: #0066ff;
+  --color-electric-blue-soft: #3b82f6;
+  --color-vibrant-orange: #ff6b35;
+  --color-vibrant-orange-soft: #f97316;
+  --color-charcoal: #2a2826;
+  --color-charcoal-soft: #4a4744;
+
+  --font-sans: "Inter", system-ui, sans-serif;
+  --font-display: "Space Grotesk", "Inter", system-ui, sans-serif;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body,
+#root {
+  height: 100%;
+  margin: 0;
+}
+
+body {
+  font-family: var(--font-sans);
+  background: var(--color-warm-white);
+  color: var(--color-charcoal);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  overflow: hidden;
+}
+
+::selection {
+  background: color-mix(in srgb, var(--color-electric-blue) 20%, transparent);
+}
+
+.glass-panel {
+  background: color-mix(in srgb, var(--color-cream) 72%, transparent);
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+  border: 1px solid color-mix(in srgb, white 60%, var(--color-sand));
+  box-shadow:
+    0 1px 2px color-mix(in srgb, var(--color-charcoal) 4%, transparent),
+    0 8px 32px color-mix(in srgb, var(--color-charcoal) 6%, transparent);
+}
+
+.grid-overlay {
+  background-image:
+    linear-gradient(color-mix(in srgb, var(--color-soft-gray) 15%, transparent) 1px, transparent 1px),
+    linear-gradient(90deg, color-mix(in srgb, var(--color-soft-gray) 15%, transparent) 1px, transparent 1px);
+  background-size: 48px 48px;
+}
+
+.scrollbar-thin {
+  scrollbar-width: thin;
+  scrollbar-color: var(--color-light-beige) transparent;
+}
+
+.scrollbar-thin::-webkit-scrollbar {
+  width: 4px;
+}
+
+.scrollbar-thin::-webkit-scrollbar-thumb {
+  background: var(--color-light-beige);
+  border-radius: 4px;
+}
+
+@keyframes scan-pulse {
+  0%, 100% { opacity: 0.4; }
+  50% { opacity: 1; }
+}
+
+@keyframes hud-blink {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.6; }
+}
