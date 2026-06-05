@@ -12,10 +12,7 @@ export function TopNav({ onUpload, onSaved, onSettings, fileName, siteUrl }: Top
   return (
     <header className="relative z-50 flex h-16 shrink-0 items-center justify-between border-b border-sand/60 bg-warm-white/80 px-6 backdrop-blur-xl">
       <div className="flex items-center gap-4">
-        <motion.a
-          href={siteUrl ?? '#'}
-          target={siteUrl ? '_blank' : undefined}
-          rel="noopener noreferrer"
+        <motion.div
           initial={{ opacity: 0, x: -8 }}
           animate={{ opacity: 1, x: 0 }}
           className="flex items-center gap-3"
@@ -31,7 +28,17 @@ export function TopNav({ onUpload, onSaved, onSettings, fileName, siteUrl }: Top
               Pre-Flight Analyzer
             </p>
           </div>
-        </motion.a>
+          {siteUrl && (
+            <a
+              href={siteUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="ml-1 text-[10px] text-electric-blue hover:underline"
+            >
+              View live
+            </a>
+          )}
+        </motion.div>
 
         {fileName && (
           <motion.div

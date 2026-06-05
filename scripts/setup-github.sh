@@ -2,7 +2,7 @@
 set -euo pipefail
 
 REPO_NAME="print-check"
-GITHUB_USER="${GITHUB_USER:-andsiosa}"
+GITHUB_USER="${GITHUB_USER:-andmarquez}"
 
 echo "→ Checking GitHub CLI auth..."
 if ! gh auth status &>/dev/null; then

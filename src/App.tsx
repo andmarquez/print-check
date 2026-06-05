@@ -15,10 +15,13 @@ import { StatsDock } from './components/layout/StatsDock'
 import { TopNav } from './components/layout/TopNav'
 import { useAnalysis } from './hooks/useAnalysis'
 
-const SITE_URL =
-  typeof window !== 'undefined'
-    ? `${window.location.origin}${import.meta.env.BASE_URL}`
-    : 'https://andsiosa.github.io/print-check/'
+function getSiteUrl(): string | undefined {
+  if (typeof window === 'undefined') return undefined
+  if (window.location.hostname.endsWith('github.io')) {
+    return `${window.location.origin}${import.meta.env.BASE_URL}`
+  }
+  return undefined
+}
 
 export default function App() {
   const uploadRef = useRef<HTMLInputElement>(null)
@@ -71,7 +74,7 @@ export default function App() {
         onSaved={() => setSavedOpen(true)}
         onSettings={() => setSettingsOpen(true)}
         fileName={stlFile?.name}
-        siteUrl={SITE_URL}
+        siteUrl={getSiteUrl()}
       />
 
       {saveToast && (

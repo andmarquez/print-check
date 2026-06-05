@@ -2,7 +2,7 @@
 
 Premium AI-powered STL Analyzer and 3D Printing Pre-Flight Checker.
 
-**Live site:** [https://andsiosa.github.io/print-check/](https://andsiosa.github.io/print-check/)
+**Live site:** [https://andmarquez.github.io/print-check/](https://andmarquez.github.io/print-check/)
 
 ## Quick Start
 
