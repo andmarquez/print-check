@@ -81,8 +81,8 @@ export function STLUploader({ onFileSelect, visible, onTrySample }: STLUploaderP
           Upload your STL
         </h2>
         <p className="mt-3 max-w-xs text-sm leading-relaxed text-charcoal-soft">
-          Drop a model file to begin pre-flight analysis. We'll inspect geometry, estimate costs,
-          and recommend optimal print settings.
+          Drop an STL to preview your model, then enter filament and print time from your slicer to
+          calculate true print cost.
         </p>
 
         <button
