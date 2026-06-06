@@ -2,13 +2,11 @@ import { motion } from 'framer-motion'
 
 interface TopNavProps {
   onUpload: () => void
-  onSaved: () => void
-  onSettings: () => void
   fileName?: string
   siteUrl?: string
 }
 
-export function TopNav({ onUpload, onSaved, onSettings, fileName, siteUrl }: TopNavProps) {
+export function TopNav({ onUpload, fileName, siteUrl }: TopNavProps) {
   return (
     <header className="relative z-50 flex h-16 shrink-0 items-center justify-between border-b border-sand/60 bg-warm-white/80 px-6 backdrop-blur-xl">
       <div className="flex items-center gap-4">
@@ -21,11 +19,9 @@ export function TopNav({ onUpload, onSaved, onSettings, fileName, siteUrl }: Top
             <img src={`${import.meta.env.BASE_URL}assets/brand/logo.svg`} alt="" className="h-5 w-5" />
           </div>
           <div>
-            <h1 className="font-display text-sm font-semibold tracking-tight text-charcoal">
-              Print Check
-            </h1>
+            <h1 className="font-display text-sm font-semibold tracking-tight text-charcoal">Print Check</h1>
             <p className="text-[10px] font-medium uppercase tracking-[0.2em] text-soft-gray">
-              Pre-Flight Analyzer
+              3D Print Cost Calculator
             </p>
           </div>
           {siteUrl && (
@@ -53,42 +49,14 @@ export function TopNav({ onUpload, onSaved, onSettings, fileName, siteUrl }: Top
       </div>
 
       <nav className="flex items-center gap-2">
-        <NavButton onClick={onUpload} primary>
+        <button
+          type="button"
+          onClick={onUpload}
+          className="cursor-pointer rounded-xl bg-charcoal px-4 py-2 text-xs font-medium tracking-wide text-warm-white shadow-md transition-all hover:bg-charcoal-soft"
+        >
           Upload STL
-        </NavButton>
-        <NavButton onClick={onSaved}>Saved Analyses</NavButton>
-        <NavButton onClick={onSettings}>Settings</NavButton>
+        </button>
       </nav>
     </header>
-  )
-}
-
-function NavButton({
-  children,
-  onClick,
-  primary,
-  disabled,
-}: {
-  children: React.ReactNode
-  onClick?: () => void
-  primary?: boolean
-  disabled?: boolean
-}) {
-  return (
-    <button
-      type="button"
-      onClick={onClick}
-      disabled={disabled}
-      className={`
-        rounded-xl px-4 py-2 text-xs font-medium tracking-wide transition-all duration-300
-        ${primary
-          ? 'bg-charcoal text-warm-white shadow-md hover:bg-charcoal-soft hover:shadow-lg'
-          : 'text-charcoal-soft hover:bg-cream/80 hover:text-charcoal'
-        }
-        ${disabled ? 'cursor-not-allowed opacity-40' : 'cursor-pointer'}
-      `}
-    >
-      {children}
-    </button>
   )
 }

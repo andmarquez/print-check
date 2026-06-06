@@ -2,17 +2,12 @@ import { Bounds, OrbitControls, PerspectiveCamera } from '@react-three/drei'
 import { Canvas, useThree } from '@react-three/fiber'
 import { Suspense, useCallback, useEffect, useState } from 'react'
 import * as THREE from 'three'
-import type { ScanStage } from '../../types/analysis'
 import { CanvasCapture } from './CanvasCapture'
-import { ScanEffects } from './ScanEffects'
 import { STLModel } from './STLModel'
 import { StudioEnvironment } from './StudioEnvironment'
 
 interface ModelViewerProps {
   stlUrl: string | null
-  scanning: boolean
-  scanStage: ScanStage
-  scanProgress: number
   rotationDeg?: { x: number; y: number; z: number }
   onCanvasReady?: (canvas: HTMLCanvasElement) => void
 }
@@ -40,9 +35,6 @@ function OrbitTarget({ target }: { target: THREE.Vector3 }) {
 
 export function ModelViewer({
   stlUrl,
-  scanning,
-  scanStage,
-  scanProgress,
   rotationDeg = { x: 0, y: 0, z: 0 },
   onCanvasReady,
 }: ModelViewerProps) {
@@ -51,20 +43,10 @@ export function ModelViewer({
     size: THREE.Vector3
     scale: number
   }>()
-  const [modelBounds, setModelBounds] = useState<{
-    min: THREE.Vector3
-    max: THREE.Vector3
-  }>()
 
   const handleFrame = useCallback(
     (frame: { center: THREE.Vector3; size: THREE.Vector3; scale: number }) => {
       setModelFrame(frame)
-      const half = frame.size.clone().multiplyScalar(0.5)
-      const center = frame.center.clone()
-      setModelBounds({
-        min: center.clone().sub(half),
-        max: center.clone().add(half),
-      })
     },
     []
   )
@@ -72,10 +54,10 @@ export function ModelViewer({
   const lookTarget = modelFrame?.center ?? new THREE.Vector3(0, 1, 0)
 
   return (
-    <div className="relative flex h-full w-full items-center justify-center overflow-hidden rounded-2xl bg-gradient-to-b from-cream/30 to-sand/20">
+    <div className="relative flex h-full min-h-[420px] w-full items-center justify-center overflow-hidden rounded-2xl bg-gradient-to-b from-cream/30 to-sand/20">
       <div className="grid-overlay pointer-events-none absolute inset-0 opacity-40" />
 
-      <div className="h-full w-full max-h-full max-w-full">
+      <div className="h-full w-full">
         <Canvas
           shadows
           className="h-full w-full"
@@ -101,19 +83,10 @@ export function ModelViewer({
               <Bounds fit clip observe margin={1.3}>
                 <STLModel
                   url={stlUrl}
-                  wireframe={scanning && scanStage === 'reading_geometry'}
                   rotationDeg={rotationDeg}
                   onFrameCalculated={handleFrame}
                 />
               </Bounds>
-              {modelBounds && (
-                <ScanEffects
-                  scanning={scanning}
-                  scanStage={scanStage}
-                  scanProgress={scanProgress}
-                  modelBounds={modelBounds}
-                />
-              )}
             </Suspense>
           ) : null}
         </Canvas>
@@ -122,12 +95,8 @@ export function ModelViewer({
       {!stlUrl && (
         <div className="pointer-events-none absolute inset-0 flex items-center justify-center">
           <div className="text-center">
-            <p className="font-display text-6xl font-light tracking-tighter text-charcoal/10">
-              3D
-            </p>
-            <p className="mt-2 text-xs uppercase tracking-[0.3em] text-soft-gray">
-              Viewer Ready
-            </p>
+            <p className="font-display text-6xl font-light tracking-tighter text-charcoal/10">3D</p>
+            <p className="mt-2 text-xs uppercase tracking-[0.3em] text-soft-gray">Viewer Ready</p>
           </div>
         </div>
       )}

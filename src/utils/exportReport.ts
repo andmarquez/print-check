@@ -1,110 +1,74 @@
+import { getPrinterProfile } from '../data/printerProfiles'
+import { BETTER_PRINT_SETTINGS } from '../data/printRecommendations'
+import type { CalculatorInputs, CostBreakdown, STLFileInfo } from '../types/printCheck'
+import { formatDuration } from '../utils/calculations'
 import { jsPDF } from 'jspdf'
-import type { AnalysisResult, STLFileInfo } from '../types/analysis'
 
-export function generateReportText(
+export function generateCostReportText(
   file: STLFileInfo,
-  analysis: AnalysisResult
+  inputs: CalculatorInputs,
+  breakdown: CostBreakdown
 ): string {
-  const { metrics, issues, aiRecommendations, printSettings, orientation, costBreakdown } =
-    analysis
-  const lines: string[] = []
+  const profile = getPrinterProfile(inputs.printerProfileId)
+  const printerName =
+    inputs.printerProfileId === 'custom' ? inputs.customPrinterName : profile.name
 
+  const lines: string[] = []
   lines.push('═'.repeat(60))
-  lines.push('PRINT CHECK — PRE-FLIGHT ANALYSIS REPORT')
+  lines.push('PRINT CHECK — 3D PRINT COST REPORT')
   lines.push('═'.repeat(60))
   lines.push('')
-  lines.push(`File: ${file.name}`)
-  lines.push(`Size: ${(file.size / 1024).toFixed(1)} KB`)
+  lines.push(`Model: ${file.name}`)
+  lines.push(`File size: ${(file.size / 1024).toFixed(1)} KB`)
   lines.push(`Generated: ${new Date().toLocaleString()}`)
   lines.push('')
-
-  lines.push('── PRINT ESTIMATES ──')
-  lines.push(`Print Time: ${metrics.printTimeHours} hours`)
-  lines.push(`Material Usage: ${metrics.materialGrams}g`)
-  lines.push(`Dimensions: ${metrics.dimensions.x} × ${metrics.dimensions.y} × ${metrics.dimensions.z} mm`)
-  lines.push(`Volume: ${metrics.volumeCm3} cm³`)
-  lines.push(`Weight: ${metrics.weightGrams}g`)
-  lines.push(`Printability Score: ${metrics.printabilityScore}%`)
-  lines.push(`Difficulty: ${metrics.difficultyScore}/100`)
-  lines.push(`Risk Score: ${metrics.riskScore}/100`)
-  lines.push(`Support Requirement: ${metrics.supportRequirement}`)
+  lines.push('── PRINT INPUTS (from slicer) ──')
+  lines.push(`Printer: ${printerName}`)
+  lines.push(`Filament used: ${inputs.filamentUsedGrams} g`)
+  lines.push(`Print time: ${formatDuration(breakdown.printTimeHours)}`)
+  lines.push(`Printer power: ${inputs.printerPowerWatts} W`)
   lines.push('')
-
-  lines.push('── COST ANALYSIS (PrintPal model) ──')
-  lines.push(`Material Cost: $${costBreakdown.materialCost.toFixed(2)}`)
-  lines.push(`Electricity Cost: $${costBreakdown.electricityCost.toFixed(2)} (${costBreakdown.energyKwh.toFixed(3)} kWh estimated)`)
-  lines.push(`Machine Wear: $${costBreakdown.machineWearCost.toFixed(2)}`)
-  lines.push(`Failure Markup: $${costBreakdown.failureMarkup.toFixed(2)}`)
-  lines.push(`Subtotal before failure: $${costBreakdown.subtotalBeforeFailure.toFixed(2)}`)
-  lines.push(`Total Estimated Cost: $${costBreakdown.totalCost.toFixed(2)}`)
+  lines.push('── COST BREAKDOWN ──')
+  lines.push(`Material: $${breakdown.materialCost.toFixed(2)}`)
+  lines.push(`Electricity: $${breakdown.electricityCost.toFixed(2)} (${breakdown.energyKwh.toFixed(3)} kWh)`)
+  lines.push(`Machine wear: $${breakdown.machineWearCost.toFixed(2)}`)
+  lines.push(`Failure markup: $${breakdown.failureMarkup.toFixed(2)}`)
+  if (breakdown.setupFee > 0) lines.push(`Setup fee: $${breakdown.setupFee.toFixed(2)}`)
+  lines.push(`Total estimated cost: $${breakdown.totalCost.toFixed(2)}`)
+  lines.push(`Suggested selling price: $${breakdown.suggestedSellingPrice.toFixed(2)} (${inputs.profitMarginPercent}% margin)`)
   lines.push('')
-
-  lines.push('── SETTINGS SUMMARY ──')
-  const s = analysis.settingsSummary
-  lines.push(`Model size: ${s.modelSize}`)
-  lines.push(`Material: ${s.material}`)
-  lines.push(`Printer: ${s.printer}`)
-  lines.push(`Layer height: ${s.layerHeight}`)
-  lines.push(`Infill: ${s.infill}`)
-  lines.push(`Supports: ${s.supports}`)
-  lines.push(`Estimated time: ${s.estimatedTime}`)
-  lines.push(`Filament: ${s.filament}`)
-  lines.push(`Energy: ${s.energy}`)
-  lines.push(`Total cost: ${s.totalCost}`)
-  lines.push('')
-
-  lines.push('── PRINT HEALTH REPORT ──')
-  for (const issue of issues) {
-    lines.push(`[${issue.status.toUpperCase()}] ${issue.title} (${issue.severity})`)
-    lines.push(`  ${issue.explanation}`)
-    lines.push(`  Fix: ${issue.suggestedFix}`)
-    lines.push('')
-  }
-
-  lines.push('── AI RECOMMENDATIONS ──')
-  for (const rec of aiRecommendations) {
-    lines.push(`• ${rec}`)
+  lines.push('── BETTER PRINT SETTINGS ──')
+  for (const item of BETTER_PRINT_SETTINGS) {
+    lines.push(`${item.label}: ${item.value}`)
+    lines.push(`  ${item.note}`)
   }
   lines.push('')
-
-  lines.push('── RECOMMENDED PRINT SETTINGS ──')
-  for (const setting of printSettings) {
-    lines.push(`${setting.label}: ${setting.value}`)
-    lines.push(`  Reason: ${setting.reason}`)
-    lines.push(`  Impact: ${setting.impact}`)
-    lines.push('')
-  }
-
-  lines.push('── ORIENTATION COMPARISON ──')
-  lines.push(`Current: X${orientation.current.x}° Y${orientation.current.y}° Z${orientation.current.z}°`)
-  lines.push(
-    `Recommended: X${orientation.recommended.x}° Y${orientation.recommended.y}° Z${orientation.recommended.z}°`
-  )
-  lines.push(`Support Reduction: ${orientation.supportReduction}`)
-  lines.push(`Time Difference: ${orientation.timeDifference}`)
-  lines.push(`Material Savings: ${orientation.materialSavings}`)
-  lines.push(`Risk Reduction: ${orientation.riskReduction}`)
-  lines.push('')
-  lines.push('═'.repeat(60))
-  lines.push('Generated by Print Check — https://github.com/andmarquez/print-check')
   lines.push('═'.repeat(60))
 
   return lines.join('\n')
 }
 
-export function downloadTextReport(file: STLFileInfo, analysis: AnalysisResult): void {
-  const content = generateReportText(file, analysis)
+export function downloadCostReport(
+  file: STLFileInfo,
+  inputs: CalculatorInputs,
+  breakdown: CostBreakdown
+): void {
+  const content = generateCostReportText(file, inputs, breakdown)
   const blob = new Blob([content], { type: 'text/plain;charset=utf-8' })
-  triggerDownload(blob, `${baseName(file)}-print-check-report.txt`)
+  triggerDownload(blob, `${baseName(file)}-print-cost-report.txt`)
 }
 
-export async function downloadPdfReport(
+export async function downloadCostReportPdf(
   file: STLFileInfo,
-  analysis: AnalysisResult,
+  inputs: CalculatorInputs,
+  breakdown: CostBreakdown,
   previewDataUrl?: string | null
 ): Promise<void> {
+  const profile = getPrinterProfile(inputs.printerProfileId)
+  const printerName =
+    inputs.printerProfileId === 'custom' ? inputs.customPrinterName : profile.name
+
   const doc = new jsPDF({ unit: 'mm', format: 'a4' })
-  const pageW = doc.internal.pageSize.getWidth()
   const margin = 16
   let y = margin
 
@@ -117,111 +81,50 @@ export async function downloadPdfReport(
 
   doc.setFont('helvetica', 'bold')
   doc.setFontSize(20)
-  doc.setTextColor(42, 40, 38)
   doc.text('Print Check', margin, y)
   y += 8
-
-  doc.setFont('helvetica', 'normal')
   doc.setFontSize(10)
-  doc.setTextColor(120, 116, 110)
-  doc.text('Pre-Flight Analysis Report', margin, y)
+  doc.setFont('helvetica', 'normal')
+  doc.text('3D Print Cost Report', margin, y)
   y += 10
-
-  doc.setFontSize(9)
-  doc.text(`File: ${file.name}`, margin, y)
-  y += 5
-  doc.text(`Generated: ${new Date().toLocaleString()}`, margin, y)
-  y += 8
 
   if (previewDataUrl) {
     addPageIfNeeded(55)
-    const imgW = pageW - margin * 2
-    const imgH = 50
-    doc.addImage(previewDataUrl, 'PNG', margin, y, imgW, imgH)
-    y += imgH + 8
-  }
-
-  const section = (title: string) => {
-    addPageIfNeeded(12)
-    doc.setFont('helvetica', 'bold')
-    doc.setFontSize(11)
-    doc.setTextColor(0, 102, 255)
-    doc.text(title, margin, y)
-    y += 7
-    doc.setFont('helvetica', 'normal')
-    doc.setFontSize(9)
-    doc.setTextColor(42, 40, 38)
+    doc.addImage(previewDataUrl, 'PNG', margin, y, doc.internal.pageSize.getWidth() - margin * 2, 45)
+    y += 50
   }
 
   const line = (text: string) => {
-    const wrapped = doc.splitTextToSize(text, pageW - margin * 2)
-    addPageIfNeeded(wrapped.length * 4.5)
+    const wrapped = doc.splitTextToSize(text, doc.internal.pageSize.getWidth() - margin * 2)
+    addPageIfNeeded(wrapped.length * 5)
     doc.text(wrapped, margin, y)
-    y += wrapped.length * 4.5 + 2
+    y += wrapped.length * 5 + 2
   }
 
-  const { metrics, costBreakdown, issues, aiRecommendations, printSettings, orientation } = analysis
-
-  section('Print Estimates')
-  line(
-    `Time: ${metrics.printTimeHours}h  |  Material: ${metrics.materialGrams}g  |  Printability: ${metrics.printabilityScore}%`
-  )
-  line(
-    `Dimensions: ${metrics.dimensions.x}×${metrics.dimensions.y}×${metrics.dimensions.z}mm  |  Volume: ${metrics.volumeCm3}cm³`
-  )
-  line(`Risk: ${metrics.riskScore}/100  |  Difficulty: ${metrics.difficultyScore}/100  |  Supports: ${metrics.supportRequirement}`)
+  line(`Model: ${file.name}`)
+  line(`Printer: ${printerName}`)
+  line(`Filament: ${inputs.filamentUsedGrams}g · Time: ${formatDuration(breakdown.printTimeHours)}`)
   y += 4
 
-  section('Cost Analysis')
-  line(
-    `Material: $${costBreakdown.materialCost.toFixed(2)}  |  Electricity: $${costBreakdown.electricityCost.toFixed(2)} (${costBreakdown.energyKwh.toFixed(3)} kWh)`
-  )
-  line(
-    `Machine wear: $${costBreakdown.machineWearCost.toFixed(2)}  |  Failure markup: $${costBreakdown.failureMarkup.toFixed(2)}  |  Total: $${costBreakdown.totalCost.toFixed(2)}`
-  )
+  doc.setFont('helvetica', 'bold')
+  line('Cost Breakdown')
+  doc.setFont('helvetica', 'normal')
+  line(`Material: $${breakdown.materialCost.toFixed(2)}`)
+  line(`Electricity: $${breakdown.electricityCost.toFixed(2)} (${breakdown.energyKwh.toFixed(3)} kWh)`)
+  line(`Machine wear: $${breakdown.machineWearCost.toFixed(2)}`)
+  line(`Failure markup: $${breakdown.failureMarkup.toFixed(2)}`)
+  line(`Total: $${breakdown.totalCost.toFixed(2)}`)
+  line(`Suggested selling price: $${breakdown.suggestedSellingPrice.toFixed(2)}`)
   y += 4
 
-  section('Settings Summary')
-  const s = analysis.settingsSummary
-  line(`${s.modelSize}  |  ${s.material}  |  ${s.printer}`)
-  line(`${s.layerHeight}  |  Infill ${s.infill}  |  ${s.supports}`)
-  line(`${s.estimatedTime}  |  ${s.filament}  |  ${s.energy}`)
-  line(`Total: ${s.totalCost}`)
-  y += 4
-
-  section('Print Health Report')
-  for (const issue of issues.filter((i) => i.status !== 'pass')) {
-    line(`[${issue.status.toUpperCase()}] ${issue.title} — ${issue.explanation}`)
-    line(`Fix: ${issue.suggestedFix}`)
+  doc.setFont('helvetica', 'bold')
+  line('Better Print Settings')
+  doc.setFont('helvetica', 'normal')
+  for (const item of BETTER_PRINT_SETTINGS.slice(0, 6)) {
+    line(`${item.label}: ${item.value}`)
   }
-  if (issues.every((i) => i.status === 'pass')) {
-    line('All checks passed — model appears print-ready.')
-  }
-  y += 4
 
-  section('AI Recommendations')
-  for (const rec of aiRecommendations) {
-    line(`• ${rec}`)
-  }
-  y += 4
-
-  section('Recommended Print Settings')
-  for (const s of printSettings.slice(0, 8)) {
-    line(`${s.label}: ${s.value} — ${s.reason}`)
-  }
-  y += 4
-
-  section('Orientation')
-  line(
-    `Recommended: X${orientation.recommended.x}° Y${orientation.recommended.y}° Z${orientation.recommended.z}°  |  Support reduction: ${orientation.supportReduction}`
-  )
-
-  doc.save(`${baseName(file)}-print-check-report.pdf`)
-}
-
-/** @deprecated Use downloadTextReport */
-export function downloadReport(file: STLFileInfo, analysis: AnalysisResult): void {
-  downloadTextReport(file, analysis)
+  doc.save(`${baseName(file)}-print-cost-report.pdf`)
 }
 
 function baseName(file: STLFileInfo): string {
