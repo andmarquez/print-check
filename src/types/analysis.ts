@@ -50,10 +50,12 @@ export interface PrintCalculationInputs {
   bottomLayers: number
   layerHeight: number
   qualityPreset: QualityPreset
-  filamentPricePerKg: number
+  spoolPrice: number
+  spoolWeightKg: number
   electricityCostPerKwh: number
-  machineHourlyRate: number
-  setupFee: number
+  printerCost: number
+  expectedLifespanHours: number
+  failureRatePercent: number
   supportsEnabled: boolean
   applyRecommendedOrientation: boolean
 }
@@ -111,8 +113,9 @@ export interface EnergyEstimate {
 export interface CostBreakdown {
   materialCost: number
   electricityCost: number
-  machineCost: number
-  setupFee: number
+  machineWearCost: number
+  failureMarkup: number
+  subtotalBeforeFailure: number
   totalCost: number
   printTimeHours: number
   energyKwh: number

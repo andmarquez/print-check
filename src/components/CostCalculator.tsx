@@ -18,15 +18,19 @@ const MATERIALS = ['PLA', 'PLA+', 'PETG', 'ABS', 'TPU', 'Resin-like PLA']
 export function CostCalculator({ inputs, analysis, onUpdate, visible }: CostCalculatorProps) {
   if (!visible) return null
 
-  const { costBreakdown, materialEstimate, energyEstimate, metrics } = analysis
+  const { costBreakdown, materialEstimate, metrics } = analysis
   const printer = PRINTER_PROFILES.find((p) => p.id === inputs.printerProfileId)
   const isCustom = inputs.printerProfileId === 'custom'
+  const powerWatts = isCustom ? inputs.customPrinter?.powerWatts ?? 160 : printer?.powerWatts ?? 160
 
   return (
     <GlassPanel className="p-5">
-      <SectionHeader title="Cost Calculator" subtitle="All values update from your inputs" />
+      <SectionHeader
+        title="Cost Calculator"
+        subtitle="PrintPal-style true cost: material, energy, wear, failure buffer"
+      />
 
-      <div className="mt-4 space-y-4">
+      <div className="mt-4 space-y-5">
         <Field label="Printer Profile">
           <select
             value={inputs.printerProfileId}
@@ -50,13 +54,6 @@ export function CostCalculator({ inputs, analysis, onUpdate, visible }: CostCalc
             <NumField label="Build Y (mm)" value={inputs.customPrinter?.buildVolumeY ?? 220} onChange={(v) => updateCustom(onUpdate, inputs, { buildVolumeY: v })} />
             <NumField label="Build Z (mm)" value={inputs.customPrinter?.buildVolumeZ ?? 250} onChange={(v) => updateCustom(onUpdate, inputs, { buildVolumeZ: v })} />
           </div>
-        )}
-
-        {printer && !isCustom && (
-          <p className="text-[11px] text-charcoal-soft">
-            {printer.printSpeedMmS}mm/s · {printer.powerWatts}W · {printer.nozzleSizeMm}mm nozzle ·{' '}
-            {printer.buildVolume.x}×{printer.buildVolume.y}×{printer.buildVolume.z}mm build volume
-          </p>
         )}
 
         <Field label="Quality Preset">
@@ -98,12 +95,52 @@ export function CostCalculator({ inputs, analysis, onUpdate, visible }: CostCalc
         <Slider label="Infill" value={inputs.infillPercentage} min={0} max={100} step={5} unit="%" onChange={(v) => onUpdate({ infillPercentage: v })} />
         <Slider label="Layer height" value={inputs.layerHeight} min={0.08} max={0.32} step={0.02} unit="mm" format={(v) => v.toFixed(2)} onChange={(v) => onUpdate({ layerHeight: v })} />
 
-        <div className="grid grid-cols-2 gap-3">
-          <NumField label="Filament ($/kg)" value={inputs.filamentPricePerKg} step={0.5} onChange={(v) => onUpdate({ filamentPricePerKg: v })} />
-          <NumField label="Electricity ($/kWh)" value={inputs.electricityCostPerKwh} step={0.01} onChange={(v) => onUpdate({ electricityCostPerKwh: v })} />
-          <NumField label="Machine rate ($/hr)" value={inputs.machineHourlyRate} step={0.5} onChange={(v) => onUpdate({ machineHourlyRate: v })} />
-          <NumField label="Setup fee ($)" value={inputs.setupFee} step={1} onChange={(v) => onUpdate({ setupFee: v })} />
-        </div>
+        <CostSection title="Material Settings">
+          <div className="grid grid-cols-2 gap-3">
+            <NumField label="Spool price ($)" value={inputs.spoolPrice} step={0.5} onChange={(v) => onUpdate({ spoolPrice: v })} />
+            <NumField label="Spool weight (kg)" value={inputs.spoolWeightKg} step={0.1} min={0.1} onChange={(v) => onUpdate({ spoolWeightKg: v })} />
+          </div>
+          <ReadOnlyField
+            label="Print weight / filament used (g)"
+            value={`${materialEstimate.totalGrams}g estimated`}
+            hint={`${materialEstimate.modelGrams.toFixed(0)}g model + ${materialEstimate.supportGrams.toFixed(0)}g supports`}
+          />
+        </CostSection>
+
+        <CostSection title="Energy Settings">
+          <div className="grid grid-cols-2 gap-3">
+            <ReadOnlyField label="Print time (hours)" value={`${metrics.printTimeHours.toFixed(2)}h estimated`} />
+            <ReadOnlyField label="Printer power (W)" value={`${powerWatts}W`} />
+            <NumField label="Electricity ($/kWh)" value={inputs.electricityCostPerKwh} step={0.01} onChange={(v) => onUpdate({ electricityCostPerKwh: v })} />
+            <ReadOnlyField label="Energy used (kWh)" value={`${costBreakdown.energyKwh.toFixed(3)} estimated`} />
+          </div>
+        </CostSection>
+
+        <CostSection title="Machine Wear (optional)">
+          <div className="grid grid-cols-2 gap-3">
+            <NumField label="Printer cost ($)" value={inputs.printerCost} step={10} onChange={(v) => onUpdate({ printerCost: v })} />
+            <NumField label="Expected lifespan (hours)" value={inputs.expectedLifespanHours} step={100} min={100} onChange={(v) => onUpdate({ expectedLifespanHours: v })} />
+          </div>
+          <p className="mt-2 text-[11px] text-charcoal-soft">
+            Wear rate: ${(inputs.printerCost / Math.max(inputs.expectedLifespanHours, 1)).toFixed(3)}/hr ·
+            this print: ${costBreakdown.machineWearCost.toFixed(2)} estimated
+          </p>
+        </CostSection>
+
+        <CostSection title="Failure Rate">
+          <Slider
+            label="Failure rate"
+            value={inputs.failureRatePercent}
+            min={0}
+            max={25}
+            step={1}
+            unit="%"
+            onChange={(v) => onUpdate({ failureRatePercent: v })}
+          />
+          <p className="mt-1 text-[11px] text-charcoal-soft">
+            Markup applied to material + electricity + machine wear (e.g. 5% ≈ 1 in 20 prints fails).
+          </p>
+        </CostSection>
 
         <label className="flex cursor-pointer items-center gap-2 text-sm text-charcoal-soft">
           <input
@@ -116,21 +153,47 @@ export function CostCalculator({ inputs, analysis, onUpdate, visible }: CostCalc
         </label>
       </div>
 
-      <div className="mt-5 grid grid-cols-2 gap-2 rounded-xl bg-charcoal p-4 text-warm-white sm:grid-cols-3">
-        <Stat label="Material" value={`$${costBreakdown.materialCost.toFixed(2)}`} />
-        <Stat label="Energy" value={`$${costBreakdown.electricityCost.toFixed(2)}`} />
-        <Stat label="kWh" value={`${costBreakdown.energyKwh.toFixed(2)}`} />
-        <Stat label="Machine" value={`$${costBreakdown.machineCost.toFixed(2)}`} />
-        <Stat label="Setup" value={`$${costBreakdown.setupFee.toFixed(2)}`} />
-        <Stat label="Total" value={`$${costBreakdown.totalCost.toFixed(2)}`} highlight />
+      <div className="mt-5 rounded-xl bg-charcoal p-4 text-warm-white">
+        <p className="text-center text-[10px] uppercase tracking-[0.2em] text-soft-gray">Cost Breakdown</p>
+        <p className="mt-1 text-center font-display text-3xl font-semibold text-electric-blue-soft">
+          <AnimatedValue value={`$${costBreakdown.totalCost.toFixed(2)}`} />
+        </p>
+        <p className="text-center text-[11px] text-soft-gray">Total estimated cost per print</p>
+
+        <div className="mt-4 grid grid-cols-2 gap-2 sm:grid-cols-4">
+          <BreakdownStat label="Material" value={`$${costBreakdown.materialCost.toFixed(2)}`} />
+          <BreakdownStat label="Electricity" value={`$${costBreakdown.electricityCost.toFixed(2)}`} />
+          <BreakdownStat label="Machine Wear" value={`$${costBreakdown.machineWearCost.toFixed(2)}`} />
+          <BreakdownStat label="Failure Markup" value={`$${costBreakdown.failureMarkup.toFixed(2)}`} />
+        </div>
       </div>
 
       <p className="mt-3 text-[11px] text-charcoal-soft">
-        Estimated filament {materialEstimate.totalGrams}g ({materialEstimate.modelGrams.toFixed(0)}g model +{' '}
-        {materialEstimate.supportGrams.toFixed(0)}g supports) · {energyEstimate.watts}W printer ·{' '}
-        {metrics.printTimeHours.toFixed(2)}h print time
+        Formula: (print weight ÷ spool weight) × spool price + (W × hours ÷ 1000) × $/kWh + (printer
+        cost ÷ lifespan) × hours, then +{inputs.failureRatePercent}% failure buffer on that subtotal.
       </p>
     </GlassPanel>
+  )
+}
+
+function CostSection({ title, children }: { title: string; children: React.ReactNode }) {
+  return (
+    <div className="rounded-xl border border-sand/40 bg-warm-white/40 p-3">
+      <h4 className="text-[10px] font-semibold uppercase tracking-[0.15em] text-electric-blue">{title}</h4>
+      <div className="mt-3 space-y-3">{children}</div>
+    </div>
+  )
+}
+
+function ReadOnlyField({ label, value, hint }: { label: string; value: string; hint?: string }) {
+  return (
+    <div>
+      <p className="text-[10px] uppercase tracking-[0.15em] text-soft-gray">{label}</p>
+      <p className="mt-1 rounded-lg bg-cream/50 px-3 py-2 text-sm font-medium text-charcoal">
+        <AnimatedValue value={value} />
+      </p>
+      {hint && <p className="mt-1 text-[10px] text-charcoal-soft">{hint}</p>}
+    </div>
   )
 }
 
@@ -236,11 +299,11 @@ function Slider({
   )
 }
 
-function Stat({ label, value, highlight }: { label: string; value: string; highlight?: boolean }) {
+function BreakdownStat({ label, value }: { label: string; value: string }) {
   return (
-    <div className="text-center">
+    <div className="rounded-lg bg-warm-white/10 px-2 py-2 text-center">
       <p className="text-[9px] uppercase tracking-wider text-soft-gray">{label}</p>
-      <p className={`font-display text-base font-semibold ${highlight ? 'text-electric-blue-soft' : ''}`}>
+      <p className="font-display text-sm font-semibold">
         <AnimatedValue value={value} />
       </p>
     </div>

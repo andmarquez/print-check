@@ -18,6 +18,7 @@ import { getPrinterProfile } from '../data/printerProfiles'
 import {
   calculateScaledDimensions,
   defaultPrintInputs,
+  normalizePrintInputs,
 } from '../utils/calculations'
 
 export function useAnalysis() {
@@ -122,9 +123,15 @@ export function useAnalysis() {
             buildVolumeZ: 250,
             nozzleSizeMm: 0.4,
           }
-        } else if (updates.printerProfileId && updates.printerProfileId !== 'custom') {
-          const profile = getPrinterProfile(updates.printerProfileId)
-          next.layerHeight = profile.defaultLayerHeightMm
+        }
+
+        if (updates.printerProfileId) {
+          const profile = getPrinterProfile(updates.printerProfileId, next.customPrinter)
+          if (updates.printerProfileId !== 'custom') {
+            next.layerHeight = profile.defaultLayerHeightMm
+          }
+          next.printerCost = profile.printerCost
+          next.expectedLifespanHours = profile.expectedLifespanHours
         }
 
         return next
@@ -171,7 +178,7 @@ export function useAnalysis() {
       }
 
       setAiRecommendations(record.analysis.aiRecommendations)
-      setPrintInputs(record.costInputs as PrintCalculationInputs)
+      setPrintInputs(normalizePrintInputs(record.costInputs))
 
       if (url) {
         const geometry = await loadSTLGeometry(url)

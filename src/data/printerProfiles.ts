@@ -10,6 +10,8 @@ export interface PrinterProfile {
   supportedMaterials: string[]
   defaultLayerHeightMm: number
   speedQualityFactor: number
+  printerCost: number
+  expectedLifespanHours: number
 }
 
 export const PRINTER_PROFILES: PrinterProfile[] = [
@@ -23,6 +25,8 @@ export const PRINTER_PROFILES: PrinterProfile[] = [
     supportedMaterials: ['PLA', 'PETG', 'ABS', 'TPU'],
     defaultLayerHeightMm: 0.16,
     speedQualityFactor: 1.15,
+    printerCost: 1199,
+    expectedLifespanHours: 8000,
   },
   {
     id: 'bambu-p1s',
@@ -34,6 +38,8 @@ export const PRINTER_PROFILES: PrinterProfile[] = [
     supportedMaterials: ['PLA', 'PLA+', 'PETG', 'ABS'],
     defaultLayerHeightMm: 0.16,
     speedQualityFactor: 1.1,
+    printerCost: 699,
+    expectedLifespanHours: 8000,
   },
   {
     id: 'bambu-a1mini',
@@ -45,6 +51,8 @@ export const PRINTER_PROFILES: PrinterProfile[] = [
     supportedMaterials: ['PLA', 'PETG', 'TPU'],
     defaultLayerHeightMm: 0.16,
     speedQualityFactor: 1.0,
+    printerCost: 399,
+    expectedLifespanHours: 6000,
   },
   {
     id: 'prusa-mk4',
@@ -56,6 +64,8 @@ export const PRINTER_PROFILES: PrinterProfile[] = [
     supportedMaterials: ['PLA', 'PETG', 'ABS', 'TPU'],
     defaultLayerHeightMm: 0.2,
     speedQualityFactor: 0.95,
+    printerCost: 899,
+    expectedLifespanHours: 10000,
   },
   {
     id: 'creality-k1',
@@ -67,6 +77,8 @@ export const PRINTER_PROFILES: PrinterProfile[] = [
     supportedMaterials: ['PLA', 'PETG', 'ABS'],
     defaultLayerHeightMm: 0.2,
     speedQualityFactor: 1.05,
+    printerCost: 499,
+    expectedLifespanHours: 6000,
   },
   {
     id: 'creality-e3v3',
@@ -78,6 +90,8 @@ export const PRINTER_PROFILES: PrinterProfile[] = [
     supportedMaterials: ['PLA', 'PETG', 'TPU'],
     defaultLayerHeightMm: 0.2,
     speedQualityFactor: 0.85,
+    printerCost: 299,
+    expectedLifespanHours: 5000,
   },
   {
     id: 'flashforge-c5',
@@ -89,6 +103,8 @@ export const PRINTER_PROFILES: PrinterProfile[] = [
     supportedMaterials: ['PLA', 'ABS', 'PETG'],
     defaultLayerHeightMm: 0.2,
     speedQualityFactor: 0.9,
+    printerCost: 599,
+    expectedLifespanHours: 7000,
   },
   {
     id: 'custom',
@@ -100,6 +116,8 @@ export const PRINTER_PROFILES: PrinterProfile[] = [
     supportedMaterials: ['PLA', 'PETG', 'ABS', 'TPU', 'Resin-like PLA'],
     defaultLayerHeightMm: 0.2,
     speedQualityFactor: 1.0,
+    printerCost: 500,
+    expectedLifespanHours: 5000,
   },
 ]
 

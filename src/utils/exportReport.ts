@@ -30,15 +30,12 @@ export function generateReportText(
   lines.push(`Support Requirement: ${metrics.supportRequirement}`)
   lines.push('')
 
-  lines.push('── COST ANALYSIS ──')
+  lines.push('── COST ANALYSIS (PrintPal model) ──')
   lines.push(`Material Cost: $${costBreakdown.materialCost.toFixed(2)}`)
   lines.push(`Electricity Cost: $${costBreakdown.electricityCost.toFixed(2)} (${costBreakdown.energyKwh.toFixed(3)} kWh estimated)`)
-  if (costBreakdown.machineCost > 0) {
-    lines.push(`Machine Time: $${costBreakdown.machineCost.toFixed(2)}`)
-  }
-  if (costBreakdown.setupFee > 0) {
-    lines.push(`Setup Fee: $${costBreakdown.setupFee.toFixed(2)}`)
-  }
+  lines.push(`Machine Wear: $${costBreakdown.machineWearCost.toFixed(2)}`)
+  lines.push(`Failure Markup: $${costBreakdown.failureMarkup.toFixed(2)}`)
+  lines.push(`Subtotal before failure: $${costBreakdown.subtotalBeforeFailure.toFixed(2)}`)
   lines.push(`Total Estimated Cost: $${costBreakdown.totalCost.toFixed(2)}`)
   lines.push('')
 
@@ -177,13 +174,11 @@ export async function downloadPdfReport(
 
   section('Cost Analysis')
   line(
-    `Material: $${costBreakdown.materialCost.toFixed(2)}  |  Electricity: $${costBreakdown.electricityCost.toFixed(2)} (${costBreakdown.energyKwh.toFixed(3)} kWh)  |  Total: $${costBreakdown.totalCost.toFixed(2)}`
+    `Material: $${costBreakdown.materialCost.toFixed(2)}  |  Electricity: $${costBreakdown.electricityCost.toFixed(2)} (${costBreakdown.energyKwh.toFixed(3)} kWh)`
   )
-  if (costBreakdown.machineCost > 0 || costBreakdown.setupFee > 0) {
-    line(
-      `Machine: $${costBreakdown.machineCost.toFixed(2)}  |  Setup: $${costBreakdown.setupFee.toFixed(2)}`
-    )
-  }
+  line(
+    `Machine wear: $${costBreakdown.machineWearCost.toFixed(2)}  |  Failure markup: $${costBreakdown.failureMarkup.toFixed(2)}  |  Total: $${costBreakdown.totalCost.toFixed(2)}`
+  )
   y += 4
 
   section('Settings Summary')

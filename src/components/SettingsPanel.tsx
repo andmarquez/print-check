@@ -105,10 +105,17 @@ export function SettingsPanel({ open, onClose, onSaved }: SettingsPanelProps) {
                 </h3>
                 <div className="mt-3 grid grid-cols-2 gap-3">
                   <Field
-                    label="Filament ($/kg)"
+                    label="Spool price ($)"
                     type="number"
-                    value={settings.filamentPricePerKg}
-                    onChange={(v) => setSettings({ ...settings, filamentPricePerKg: v })}
+                    value={settings.spoolPrice}
+                    onChange={(v) => setSettings({ ...settings, spoolPrice: v })}
+                  />
+                  <Field
+                    label="Spool weight (kg)"
+                    type="number"
+                    value={settings.spoolWeightKg}
+                    step={0.1}
+                    onChange={(v) => setSettings({ ...settings, spoolWeightKg: v })}
                   />
                   <Field
                     label="Electricity ($/kWh)"

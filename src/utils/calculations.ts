@@ -205,30 +205,76 @@ export function estimateEnergyUsage(
   }
 }
 
+/** Material cost = (print weight ÷ spool weight) × spool price (PrintPal model). */
+export function calculateMaterialCost(
+  materialGrams: number,
+  spoolPrice: number,
+  spoolWeightKg: number
+): number {
+  const spoolGrams = Math.max(spoolWeightKg * 1000, 1)
+  return round((materialGrams / spoolGrams) * spoolPrice, 2)
+}
+
+/** Machine wear = (printer cost ÷ lifespan hours) × print hours. */
+export function calculateMachineWearCost(
+  printerCost: number,
+  expectedLifespanHours: number,
+  printHours: number
+): number {
+  if (expectedLifespanHours <= 0) return 0
+  return round((printerCost / expectedLifespanHours) * printHours, 2)
+}
+
+/** Failure markup applied to material + electricity + machine wear subtotal. */
+export function calculateFailureMarkup(
+  subtotalBeforeFailure: number,
+  failureRatePercent: number
+): number {
+  return round(subtotalBeforeFailure * (failureRatePercent / 100), 2)
+}
+
+/**
+ * PrintPal-style total cost:
+ * material + electricity + machine wear + failure markup on that subtotal.
+ */
 export function calculateTotalCost(params: {
   materialGrams: number
-  filamentPricePerKg: number
+  spoolPrice: number
+  spoolWeightKg: number
   energyCost: number
   printHours: number
-  machineHourlyRate: number
-  setupFee: number
+  printerCost: number
+  expectedLifespanHours: number
+  failureRatePercent: number
 }): {
   materialCost: number
   electricityCost: number
-  machineCost: number
-  setupFee: number
+  machineWearCost: number
+  failureMarkup: number
+  subtotalBeforeFailure: number
   totalCost: number
 } {
-  const materialCost = round((params.materialGrams / 1000) * params.filamentPricePerKg, 2)
-  const machineCost = round(params.printHours * params.machineHourlyRate, 2)
-  const setupFee = round(params.setupFee, 2)
-  const totalCost = round(materialCost + params.energyCost + machineCost + setupFee, 2)
+  const materialCost = calculateMaterialCost(
+    params.materialGrams,
+    params.spoolPrice,
+    params.spoolWeightKg
+  )
+  const electricityCost = round(params.energyCost, 2)
+  const machineWearCost = calculateMachineWearCost(
+    params.printerCost,
+    params.expectedLifespanHours,
+    params.printHours
+  )
+  const subtotalBeforeFailure = round(materialCost + electricityCost + machineWearCost, 2)
+  const failureMarkup = calculateFailureMarkup(subtotalBeforeFailure, params.failureRatePercent)
+  const totalCost = round(subtotalBeforeFailure + failureMarkup, 2)
 
   return {
     materialCost,
-    electricityCost: params.energyCost,
-    machineCost,
-    setupFee,
+    electricityCost,
+    machineWearCost,
+    failureMarkup,
+    subtotalBeforeFailure,
     totalCost,
   }
 }
@@ -379,6 +425,33 @@ export function formatDuration(hours: number): string {
   return m > 0 ? `${h}h ${m}m` : `${h}h`
 }
 
+export function normalizePrintInputs(
+  inputs: Partial<PrintCalculationInputs> & { filamentPricePerKg?: number }
+): PrintCalculationInputs {
+  const legacy = inputs as {
+    filamentPricePerKg?: number
+    machineHourlyRate?: number
+    setupFee?: number
+  }
+
+  const base =
+    inputs.desiredSize && inputs.scaledDimensionsMm
+      ? (inputs as PrintCalculationInputs)
+      : null
+
+  const merged = {
+    ...(base ?? {}),
+    ...inputs,
+    spoolPrice: inputs.spoolPrice ?? legacy.filamentPricePerKg ?? 22,
+    spoolWeightKg: inputs.spoolWeightKg ?? 1,
+    printerCost: inputs.printerCost ?? 699,
+    expectedLifespanHours: inputs.expectedLifespanHours ?? 8000,
+    failureRatePercent: inputs.failureRatePercent ?? 5,
+  }
+
+  return merged as PrintCalculationInputs
+}
+
 export function defaultPrintInputs(originalMm: ModelDimensions): PrintCalculationInputs {
   const desiredSize = desiredSizeFromOriginal(originalMm, 'mm')
   const { scaledDimensionsMm, scaleFactor } = calculateScaledDimensions(originalMm, desiredSize)
@@ -396,10 +469,12 @@ export function defaultPrintInputs(originalMm: ModelDimensions): PrintCalculatio
     bottomLayers: 4,
     layerHeight: 0.16,
     qualityPreset: 'standard',
-    filamentPricePerKg: 22,
+    spoolPrice: 22,
+    spoolWeightKg: 1,
     electricityCostPerKwh: 0.16,
-    machineHourlyRate: 0,
-    setupFee: 0,
+    printerCost: 699,
+    expectedLifespanHours: 8000,
+    failureRatePercent: 5,
     supportsEnabled: true,
     applyRecommendedOrientation: false,
   }

@@ -60,11 +60,13 @@ export function buildAnalysisFromStats(
 
   const costs = calculateTotalCost({
     materialGrams: material.totalGrams,
-    filamentPricePerKg: inputs.filamentPricePerKg,
+    spoolPrice: inputs.spoolPrice,
+    spoolWeightKg: inputs.spoolWeightKg,
     energyCost: energy.cost,
     printHours: time.hours,
-    machineHourlyRate: inputs.machineHourlyRate,
-    setupFee: inputs.setupFee,
+    printerCost: inputs.printerCost,
+    expectedLifespanHours: inputs.expectedLifespanHours,
+    failureRatePercent: inputs.failureRatePercent,
   })
 
   const issues = buildIssuesFromStats(scaledStats)
@@ -124,8 +126,9 @@ export function buildAnalysisFromStats(
     costBreakdown: {
       materialCost: costs.materialCost,
       electricityCost: costs.electricityCost,
-      machineCost: costs.machineCost,
-      setupFee: costs.setupFee,
+      machineWearCost: costs.machineWearCost,
+      failureMarkup: costs.failureMarkup,
+      subtotalBeforeFailure: costs.subtotalBeforeFailure,
       totalCost: costs.totalCost,
       printTimeHours: time.hours,
       energyKwh: energy.kwh,
