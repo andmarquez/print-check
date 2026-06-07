@@ -304,6 +304,10 @@ body {
 }
 
 .splash-screen {
+  width: 100%;
+  border: none;
+  border-radius: 0;
+  box-shadow: none;
   background:
     radial-gradient(ellipse 80% 60% at 10% 0%, color-mix(in srgb, var(--color-electric-blue) 8%, transparent), transparent 55%),
     radial-gradient(ellipse 70% 50% at 90% 10%, color-mix(in srgb, var(--color-vibrant-orange) 6%, transparent), transparent 50%),

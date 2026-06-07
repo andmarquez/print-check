@@ -65,7 +65,22 @@ export default function App() {
         </div>
       )}
 
-      {phase !== 'empty' && (
+      {phase === 'empty' ? (
+        <>
+          <STLUploader onFileSelect={handleFileUpload} visible />
+          <input
+            id="stl-upload-input"
+            type="file"
+            accept=".stl"
+            className="hidden"
+            onChange={(e) => {
+              const file = e.target.files?.[0]
+              if (file) handleFileUpload(file)
+              e.target.value = ''
+            }}
+          />
+        </>
+      ) : (
         <main className="relative flex min-h-0 flex-1 gap-4 p-4 lg:p-6">
           <section className="relative min-w-0 flex-[3]">
             <ModelViewer
@@ -134,22 +149,6 @@ export default function App() {
           </aside>
         </main>
       )}
-
-      {phase === 'empty' && (
-        <input
-          id="stl-upload-input"
-          type="file"
-          accept=".stl"
-          className="hidden"
-          onChange={(e) => {
-            const file = e.target.files?.[0]
-            if (file) handleFileUpload(file)
-            e.target.value = ''
-          }}
-        />
-      )}
-
-      <STLUploader onFileSelect={handleFileUpload} visible={phase === 'empty'} />
 
       <SettingsPanel open={settingsOpen} onClose={() => setSettingsOpen(false)} onSaved={() => {}} />
 

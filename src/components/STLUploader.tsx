@@ -35,11 +35,11 @@ export function STLUploader({ onFileSelect, visible }: STLUploaderProps) {
   }
 
   return (
-    <motion.div
+    <motion.section
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
-      className="splash-screen fixed inset-x-0 bottom-0 top-16 z-30 flex items-center justify-center"
+      className="splash-screen flex min-h-0 w-full flex-1 items-center justify-center"
       onDragOver={(e) => e.preventDefault()}
       onDragEnter={(e) => {
         e.preventDefault()
@@ -50,28 +50,28 @@ export function STLUploader({ onFileSelect, visible }: STLUploaderProps) {
       }}
       onDrop={onDrop}
     >
-      <motion.div
-        initial={{ opacity: 0, y: 12 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
-        className="flex max-w-lg flex-col items-center px-8 text-center"
-      >
-        <div className="mb-6 flex h-16 w-16 items-center justify-center">
-          <svg width="28" height="28" viewBox="0 0 28 28" fill="none">
-            <path
-              d="M6 20 L14 6 L22 20 Z"
-              stroke="#0066FF"
-              strokeWidth="1.5"
-              strokeLinejoin="round"
-            />
-            <line x1="8" y1="16" x2="20" y2="16" stroke="#FF6B35" strokeWidth="1" />
-          </svg>
-        </div>
+      <div className="flex flex-col items-center px-8 text-center">
+        <svg
+          className="mb-6"
+          width="28"
+          height="28"
+          viewBox="0 0 28 28"
+          fill="none"
+          aria-hidden
+        >
+          <path
+            d="M6 20 L14 6 L22 20 Z"
+            stroke="#0066FF"
+            strokeWidth="1.5"
+            strokeLinejoin="round"
+          />
+          <line x1="8" y1="16" x2="20" y2="16" stroke="#FF6B35" strokeWidth="1" />
+        </svg>
 
         <h2 className="font-display text-3xl font-light tracking-tight text-charcoal">
           Upload your STL
         </h2>
-        <p className="mt-3 max-w-xs text-sm leading-relaxed text-charcoal-soft">
+        <p className="mt-3 max-w-md text-sm leading-relaxed text-charcoal-soft">
           Drop a model file to begin pre-flight analysis. We'll inspect geometry, estimate costs,
           and recommend optimal print settings.
         </p>
@@ -87,7 +87,7 @@ export function STLUploader({ onFileSelect, visible }: STLUploaderProps) {
         <p className="mt-4 text-[11px] uppercase tracking-[0.2em] text-soft-gray">
           .STL files only
         </p>
-      </motion.div>
+      </div>
 
       <input
         ref={inputRef}
@@ -96,6 +96,6 @@ export function STLUploader({ onFileSelect, visible }: STLUploaderProps) {
         className="hidden"
         onChange={(e) => handleFiles(e.target.files)}
       />
-    </motion.div>
+    </motion.section>
   )
 }
