@@ -57,7 +57,7 @@ export function DesiredSizePanel({
               desiredSize: { ...desiredSize, unit: e.target.value as SizeUnit },
             })
           }
-          className="rounded-lg border border-sand/60 bg-warm-white/80 px-3 py-1.5 text-sm"
+          className="glass-input px-3 py-1.5 text-sm"
         >
           {UNITS.map((u) => (
             <option key={u} value={u}>
@@ -87,7 +87,7 @@ export function DesiredSizePanel({
         <DimField label="Depth" value={desiredSize.depth} onChange={(v) => updateDimension('depth', v)} />
       </div>
 
-      <div className="mt-4 rounded-xl bg-warm-white/60 px-4 py-3 text-xs text-charcoal-soft">
+      <div className="glass-inset mt-4 px-4 py-3 text-xs text-charcoal-soft">
         <p>
           Scaled size:{' '}
           <span className="font-medium text-charcoal">
@@ -104,7 +104,7 @@ export function DesiredSizePanel({
         whileHover={{ scale: 1.02 }}
         whileTap={{ scale: 0.98 }}
         onClick={onStartAnalysis}
-        className="mt-5 w-full cursor-pointer rounded-2xl bg-charcoal py-3.5 text-sm font-medium text-warm-white shadow-lg"
+        className="glass-button-primary mt-5 w-full cursor-pointer py-3.5 text-sm font-medium"
       >
         Run Pre-Flight Analysis
       </motion.button>
@@ -133,7 +133,7 @@ function DimField({
           const parsed = parseFloat(e.target.value)
           if (Number.isFinite(parsed) && parsed > 0) onChange(parsed)
         }}
-        className="mt-1 w-full rounded-lg border border-sand/60 bg-warm-white/80 px-3 py-2 text-sm"
+        className="glass-input mt-1 px-3 py-2 text-sm"
       />
     </div>
   )

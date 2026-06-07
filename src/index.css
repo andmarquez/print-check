@@ -30,25 +30,315 @@ body,
 
 body {
   font-family: var(--font-sans);
-  background: var(--color-warm-white);
   color: var(--color-charcoal);
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   overflow: hidden;
+  background:
+    radial-gradient(ellipse 80% 60% at 10% 0%, color-mix(in srgb, var(--color-electric-blue) 8%, transparent), transparent 55%),
+    radial-gradient(ellipse 70% 50% at 90% 10%, color-mix(in srgb, var(--color-vibrant-orange) 6%, transparent), transparent 50%),
+    radial-gradient(ellipse 60% 40% at 50% 100%, color-mix(in srgb, var(--color-cream) 90%, white), transparent 70%),
+    var(--color-warm-white);
 }
 
 ::selection {
   background: color-mix(in srgb, var(--color-electric-blue) 20%, transparent);
 }
 
+/* ── Liquid glass surfaces ── */
+
+.glass-panel,
+.glass-inset,
+.glass-input,
+.glass-chip,
+.glass-button,
+.glass-button-primary,
+.glass-button-dark,
+.glass-nav,
+.glass-frame,
+.glass-dark,
+.glass-progress {
+  position: relative;
+  isolation: isolate;
+  border-radius: inherit;
+}
+
 .glass-panel {
-  background: color-mix(in srgb, var(--color-cream) 72%, transparent);
-  backdrop-filter: blur(24px);
-  -webkit-backdrop-filter: blur(24px);
-  border: 1px solid color-mix(in srgb, white 60%, var(--color-sand));
+  overflow: hidden;
+  border-radius: 1rem;
+  background:
+    linear-gradient(
+      145deg,
+      color-mix(in srgb, white 52%, transparent) 0%,
+      color-mix(in srgb, var(--color-cream) 28%, transparent) 42%,
+      color-mix(in srgb, white 18%, transparent) 100%
+    );
+  backdrop-filter: blur(40px) saturate(190%);
+  -webkit-backdrop-filter: blur(40px) saturate(190%);
+  border: 1px solid color-mix(in srgb, white 62%, var(--color-sand));
   box-shadow:
-    0 1px 2px color-mix(in srgb, var(--color-charcoal) 4%, transparent),
-    0 8px 32px color-mix(in srgb, var(--color-charcoal) 6%, transparent);
+    inset 0 1px 0 color-mix(in srgb, white 75%, transparent),
+    inset 0 -1px 0 color-mix(in srgb, var(--color-sand) 22%, transparent),
+    0 8px 32px color-mix(in srgb, var(--color-charcoal) 7%, transparent),
+    0 2px 8px color-mix(in srgb, var(--color-charcoal) 4%, transparent);
+}
+
+.glass-panel::before,
+.glass-inset::before,
+.glass-frame::before,
+.glass-dark::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  pointer-events: none;
+  background: linear-gradient(
+    125deg,
+    color-mix(in srgb, white 55%, transparent) 0%,
+    transparent 38%,
+    transparent 62%,
+    color-mix(in srgb, white 12%, transparent) 100%
+  );
+  opacity: 0.55;
+}
+
+.glass-panel::after {
+  content: "";
+  position: absolute;
+  top: -40%;
+  left: -20%;
+  width: 55%;
+  height: 80%;
+  border-radius: 50%;
+  pointer-events: none;
+  background: radial-gradient(
+    circle,
+    color-mix(in srgb, white 35%, transparent) 0%,
+    transparent 70%
+  );
+  opacity: 0.45;
+  filter: blur(8px);
+}
+
+.glass-inset {
+  overflow: hidden;
+  border-radius: 0.75rem;
+  background:
+    linear-gradient(
+      160deg,
+      color-mix(in srgb, white 38%, transparent) 0%,
+      color-mix(in srgb, var(--color-cream) 22%, transparent) 100%
+    );
+  backdrop-filter: blur(24px) saturate(160%);
+  -webkit-backdrop-filter: blur(24px) saturate(160%);
+  border: 1px solid color-mix(in srgb, white 48%, var(--color-sand));
+  box-shadow:
+    inset 0 1px 0 color-mix(in srgb, white 60%, transparent),
+    inset 0 1px 12px color-mix(in srgb, white 25%, transparent),
+    0 1px 4px color-mix(in srgb, var(--color-charcoal) 3%, transparent);
+}
+
+.glass-input {
+  width: 100%;
+  border-radius: 0.625rem;
+  background: color-mix(in srgb, white 32%, transparent);
+  backdrop-filter: blur(16px) saturate(150%);
+  -webkit-backdrop-filter: blur(16px) saturate(150%);
+  border: 1px solid color-mix(in srgb, white 50%, var(--color-sand));
+  box-shadow:
+    inset 0 1px 0 color-mix(in srgb, white 65%, transparent),
+    inset 0 1px 8px color-mix(in srgb, white 20%, transparent);
+  outline: none;
+  transition:
+    border-color 0.2s ease,
+    box-shadow 0.2s ease,
+    background 0.2s ease;
+}
+
+.glass-input:focus {
+  border-color: color-mix(in srgb, var(--color-electric-blue) 35%, var(--color-sand));
+  box-shadow:
+    inset 0 1px 0 color-mix(in srgb, white 65%, transparent),
+    0 0 0 3px color-mix(in srgb, var(--color-electric-blue) 12%, transparent);
+}
+
+.glass-chip {
+  border-radius: 9999px;
+  background: color-mix(in srgb, white 35%, transparent);
+  backdrop-filter: blur(20px) saturate(160%);
+  -webkit-backdrop-filter: blur(20px) saturate(160%);
+  border: 1px solid color-mix(in srgb, white 55%, var(--color-sand));
+  box-shadow:
+    inset 0 1px 0 color-mix(in srgb, white 70%, transparent),
+    0 1px 4px color-mix(in srgb, var(--color-charcoal) 4%, transparent);
+}
+
+.glass-button {
+  border-radius: 0.75rem;
+  background: color-mix(in srgb, white 30%, transparent);
+  backdrop-filter: blur(20px) saturate(160%);
+  -webkit-backdrop-filter: blur(20px) saturate(160%);
+  border: 1px solid color-mix(in srgb, white 52%, var(--color-sand));
+  box-shadow:
+    inset 0 1px 0 color-mix(in srgb, white 68%, transparent),
+    0 2px 8px color-mix(in srgb, var(--color-charcoal) 5%, transparent);
+  transition:
+    background 0.2s ease,
+    box-shadow 0.2s ease,
+    transform 0.2s ease;
+}
+
+.glass-button:hover {
+  background: color-mix(in srgb, white 45%, transparent);
+  box-shadow:
+    inset 0 1px 0 color-mix(in srgb, white 75%, transparent),
+    0 4px 16px color-mix(in srgb, var(--color-charcoal) 7%, transparent);
+}
+
+.glass-button-primary {
+  border-radius: 0.75rem;
+  background:
+    linear-gradient(
+      145deg,
+      color-mix(in srgb, var(--color-charcoal) 92%, transparent),
+      color-mix(in srgb, var(--color-charcoal-soft) 88%, transparent)
+    );
+  backdrop-filter: blur(12px) saturate(140%);
+  -webkit-backdrop-filter: blur(12px) saturate(140%);
+  border: 1px solid color-mix(in srgb, white 18%, var(--color-charcoal));
+  box-shadow:
+    inset 0 1px 0 color-mix(in srgb, white 22%, transparent),
+    0 4px 20px color-mix(in srgb, var(--color-charcoal) 25%, transparent);
+  color: var(--color-warm-white);
+  transition:
+    background 0.2s ease,
+    box-shadow 0.2s ease,
+    transform 0.2s ease;
+}
+
+.glass-button-primary:hover {
+  box-shadow:
+    inset 0 1px 0 color-mix(in srgb, white 28%, transparent),
+    0 6px 28px color-mix(in srgb, var(--color-charcoal) 32%, transparent);
+}
+
+.glass-button-dark {
+  border-radius: 0.75rem;
+  background: color-mix(in srgb, var(--color-charcoal) 78%, transparent);
+  backdrop-filter: blur(16px) saturate(140%);
+  -webkit-backdrop-filter: blur(16px) saturate(140%);
+  border: 1px solid color-mix(in srgb, white 14%, var(--color-charcoal));
+  box-shadow:
+    inset 0 1px 0 color-mix(in srgb, white 16%, transparent),
+    0 2px 10px color-mix(in srgb, var(--color-charcoal) 18%, transparent);
+  color: var(--color-warm-white);
+}
+
+.glass-nav {
+  background:
+    linear-gradient(
+      180deg,
+      color-mix(in srgb, white 42%, transparent) 0%,
+      color-mix(in srgb, var(--color-cream) 24%, transparent) 100%
+    );
+  backdrop-filter: blur(32px) saturate(180%);
+  -webkit-backdrop-filter: blur(32px) saturate(180%);
+  border-bottom: 1px solid color-mix(in srgb, white 55%, var(--color-sand));
+  box-shadow:
+    inset 0 1px 0 color-mix(in srgb, white 70%, transparent),
+    0 4px 24px color-mix(in srgb, var(--color-charcoal) 4%, transparent);
+}
+
+.glass-frame {
+  overflow: hidden;
+  border-radius: 1rem;
+  background:
+    linear-gradient(
+      165deg,
+      color-mix(in srgb, white 30%, transparent) 0%,
+      color-mix(in srgb, var(--color-cream) 18%, transparent) 50%,
+      color-mix(in srgb, var(--color-sand) 12%, transparent) 100%
+    );
+  backdrop-filter: blur(28px) saturate(170%);
+  -webkit-backdrop-filter: blur(28px) saturate(170%);
+  border: 1px solid color-mix(in srgb, white 50%, var(--color-sand));
+  box-shadow:
+    inset 0 1px 0 color-mix(in srgb, white 60%, transparent),
+    inset 0 -1px 0 color-mix(in srgb, var(--color-sand) 18%, transparent),
+    0 8px 40px color-mix(in srgb, var(--color-charcoal) 6%, transparent);
+}
+
+.glass-dark {
+  overflow: hidden;
+  border-radius: 0.75rem;
+  background:
+    linear-gradient(
+      145deg,
+      color-mix(in srgb, var(--color-charcoal) 82%, transparent) 0%,
+      color-mix(in srgb, var(--color-charcoal-soft) 75%, transparent) 100%
+    );
+  backdrop-filter: blur(32px) saturate(150%);
+  -webkit-backdrop-filter: blur(32px) saturate(150%);
+  border: 1px solid color-mix(in srgb, white 14%, var(--color-charcoal));
+  box-shadow:
+    inset 0 1px 0 color-mix(in srgb, white 18%, transparent),
+    inset 0 -1px 0 color-mix(in srgb, black 20%, transparent),
+    0 8px 32px color-mix(in srgb, var(--color-charcoal) 20%, transparent);
+  color: var(--color-warm-white);
+}
+
+.glass-dark .glass-inset {
+  background: color-mix(in srgb, white 8%, transparent);
+  border-color: color-mix(in srgb, white 12%, var(--color-charcoal));
+  box-shadow: inset 0 1px 0 color-mix(in srgb, white 10%, transparent);
+}
+
+.glass-dark .glass-inset::before {
+  opacity: 0.2;
+}
+
+.glass-overlay {
+  background: color-mix(in srgb, var(--color-warm-white) 35%, transparent);
+  backdrop-filter: blur(12px) saturate(140%);
+  -webkit-backdrop-filter: blur(12px) saturate(140%);
+}
+
+.glass-progress {
+  overflow: hidden;
+  border-radius: 9999px;
+  background: color-mix(in srgb, var(--color-sand) 35%, transparent);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  box-shadow: inset 0 1px 3px color-mix(in srgb, var(--color-charcoal) 8%, transparent);
+}
+
+.glass-toggle-active {
+  background:
+    linear-gradient(
+      145deg,
+      color-mix(in srgb, var(--color-charcoal) 90%, transparent),
+      color-mix(in srgb, var(--color-charcoal-soft) 85%, transparent)
+    );
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid color-mix(in srgb, white 15%, var(--color-charcoal));
+  box-shadow:
+    inset 0 1px 0 color-mix(in srgb, white 20%, transparent),
+    0 2px 8px color-mix(in srgb, var(--color-charcoal) 15%, transparent);
+  color: var(--color-warm-white);
+}
+
+.glass-toggle {
+  background: color-mix(in srgb, white 28%, transparent);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid color-mix(in srgb, white 45%, var(--color-sand));
+  box-shadow: inset 0 1px 0 color-mix(in srgb, white 55%, transparent);
+  transition: background 0.2s ease;
+}
+
+.glass-toggle:hover {
+  background: color-mix(in srgb, white 42%, transparent);
 }
 
 .grid-overlay {
@@ -80,4 +370,9 @@ body {
 @keyframes hud-blink {
   0%, 100% { opacity: 1; }
   50% { opacity: 0.6; }
+}
+
+@keyframes glass-shimmer {
+  0% { transform: translateX(-120%) rotate(12deg); }
+  100% { transform: translateX(220%) rotate(12deg); }
 }

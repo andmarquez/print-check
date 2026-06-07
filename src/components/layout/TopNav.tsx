@@ -5,19 +5,19 @@ interface TopNavProps {
   onSaved: () => void
   onSettings: () => void
   fileName?: string
-  siteUrl?: string
+  showSaved?: boolean
 }
 
-export function TopNav({ onUpload, onSaved, onSettings, fileName, siteUrl }: TopNavProps) {
+export function TopNav({ onUpload, onSaved, onSettings, fileName, showSaved = true }: TopNavProps) {
   return (
-    <header className="relative z-50 flex h-16 shrink-0 items-center justify-between border-b border-sand/60 bg-warm-white/80 px-6 backdrop-blur-xl">
+    <header className="glass-nav relative z-50 flex h-16 shrink-0 items-center justify-between px-6">
       <div className="flex items-center gap-4">
         <motion.div
           initial={{ opacity: 0, x: -8 }}
           animate={{ opacity: 1, x: 0 }}
           className="flex items-center gap-3"
         >
-          <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-cream shadow-sm">
+          <div className="glass-inset flex h-9 w-9 items-center justify-center rounded-xl">
             <img src={`${import.meta.env.BASE_URL}assets/brand/logo.svg`} alt="" className="h-5 w-5" />
           </div>
           <div>
@@ -28,23 +28,13 @@ export function TopNav({ onUpload, onSaved, onSettings, fileName, siteUrl }: Top
               Pre-Flight Analyzer
             </p>
           </div>
-          {siteUrl && (
-            <a
-              href={siteUrl}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="ml-1 text-[10px] text-electric-blue hover:underline"
-            >
-              View live
-            </a>
-          )}
         </motion.div>
 
         {fileName && (
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
-            className="hidden items-center gap-2 rounded-full border border-sand/80 bg-cream/50 px-3 py-1 md:flex"
+            className="glass-chip hidden items-center gap-2 px-3 py-1 md:flex"
           >
             <span className="h-1.5 w-1.5 rounded-full bg-electric-blue" />
             <span className="max-w-[200px] truncate text-xs text-charcoal-soft">{fileName}</span>
@@ -56,7 +46,7 @@ export function TopNav({ onUpload, onSaved, onSettings, fileName, siteUrl }: Top
         <NavButton onClick={onUpload} primary>
           Upload STL
         </NavButton>
-        <NavButton onClick={onSaved}>Saved Analyses</NavButton>
+        {showSaved && <NavButton onClick={onSaved}>Saved Analyses</NavButton>}
         <NavButton onClick={onSettings}>Settings</NavButton>
       </nav>
     </header>
@@ -80,11 +70,8 @@ function NavButton({
       onClick={onClick}
       disabled={disabled}
       className={`
-        rounded-xl px-4 py-2 text-xs font-medium tracking-wide transition-all duration-300
-        ${primary
-          ? 'bg-charcoal text-warm-white shadow-md hover:bg-charcoal-soft hover:shadow-lg'
-          : 'text-charcoal-soft hover:bg-cream/80 hover:text-charcoal'
-        }
+        px-4 py-2 text-xs font-medium tracking-wide
+        ${primary ? 'glass-button-primary' : 'glass-button text-charcoal-soft hover:text-charcoal'}
         ${disabled ? 'cursor-not-allowed opacity-40' : 'cursor-pointer'}
       `}
     >

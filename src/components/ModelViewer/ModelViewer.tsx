@@ -72,7 +72,7 @@ export function ModelViewer({
   const lookTarget = modelFrame?.center ?? new THREE.Vector3(0, 1, 0)
 
   return (
-    <div className="relative flex h-full w-full items-center justify-center overflow-hidden rounded-2xl bg-gradient-to-b from-cream/30 to-sand/20">
+    <div className="glass-frame relative flex h-full w-full items-center justify-center overflow-hidden rounded-2xl">
       <div className="grid-overlay pointer-events-none absolute inset-0 opacity-40" />
 
       <div className="h-full w-full max-h-full max-w-full">

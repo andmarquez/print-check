@@ -54,7 +54,7 @@ export function ExportReportButton({
         whileTap={{ scale: 0.98 }}
         disabled={exporting}
         onClick={handlePdf}
-        className="flex w-full cursor-pointer items-center justify-center gap-2 rounded-2xl bg-charcoal px-6 py-4 text-sm font-medium tracking-wide text-warm-white shadow-lg transition-shadow hover:shadow-xl disabled:opacity-60"
+        className="glass-button-primary flex w-full cursor-pointer items-center justify-center gap-2 px-6 py-4 text-sm font-medium tracking-wide disabled:opacity-60"
       >
         <DownloadIcon />
         {exporting ? 'Generating PDF...' : 'Download PDF Report'}
@@ -64,7 +64,7 @@ export function ExportReportButton({
         <button
           type="button"
           onClick={() => downloadTextReport(file, analysis)}
-          className="cursor-pointer rounded-xl border border-sand/80 bg-warm-white/60 py-3 text-xs font-medium text-charcoal-soft hover:bg-cream"
+          className="glass-button cursor-pointer py-3 text-xs font-medium text-charcoal-soft"
         >
           Text Report
         </button>
@@ -73,7 +73,7 @@ export function ExportReportButton({
             type="button"
             disabled={saving}
             onClick={handleSave}
-            className="cursor-pointer rounded-xl border border-electric-blue/30 bg-electric-blue/5 py-3 text-xs font-medium text-electric-blue hover:bg-electric-blue/10 disabled:opacity-60"
+            className="glass-button cursor-pointer border border-electric-blue/30 py-3 text-xs font-medium text-electric-blue disabled:opacity-60"
           >
             {saving ? 'Saving...' : 'Save Analysis'}
           </button>

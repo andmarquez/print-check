@@ -4,10 +4,9 @@ import { useCallback, useRef } from 'react'
 interface STLUploaderProps {
   onFileSelect: (file: File) => void
   visible: boolean
-  onTrySample?: () => void
 }
 
-export function STLUploader({ onFileSelect, visible, onTrySample }: STLUploaderProps) {
+export function STLUploader({ onFileSelect, visible }: STLUploaderProps) {
   const inputRef = useRef<HTMLInputElement>(null)
   const dragCounter = useRef(0)
 
@@ -48,7 +47,7 @@ export function STLUploader({ onFileSelect, visible, onTrySample }: STLUploaderP
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
-      className="absolute inset-0 z-30 flex items-center justify-center bg-warm-white/60 backdrop-blur-sm"
+      className="glass-overlay absolute inset-0 z-30 flex items-center justify-center"
       onDragOver={(e) => e.preventDefault()}
       onDragEnter={(e) => {
         e.preventDefault()
@@ -65,7 +64,7 @@ export function STLUploader({ onFileSelect, visible, onTrySample }: STLUploaderP
         transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
         className="glass-panel flex max-w-lg flex-col items-center rounded-3xl px-16 py-14 text-center"
       >
-        <div className="mb-6 flex h-16 w-16 items-center justify-center rounded-2xl bg-cream">
+        <div className="glass-inset mb-6 flex h-16 w-16 items-center justify-center rounded-2xl">
           <svg width="28" height="28" viewBox="0 0 28 28" fill="none">
             <path
               d="M6 20 L14 6 L22 20 Z"
@@ -88,7 +87,7 @@ export function STLUploader({ onFileSelect, visible, onTrySample }: STLUploaderP
         <button
           type="button"
           onClick={() => inputRef.current?.click()}
-          className="mt-8 cursor-pointer rounded-2xl bg-charcoal px-8 py-3.5 text-sm font-medium tracking-wide text-warm-white shadow-lg transition-all hover:bg-charcoal-soft hover:shadow-xl"
+          className="glass-button-primary mt-8 cursor-pointer px-8 py-3.5 text-sm font-medium tracking-wide"
         >
           Choose File
         </button>
@@ -96,16 +95,6 @@ export function STLUploader({ onFileSelect, visible, onTrySample }: STLUploaderP
         <p className="mt-4 text-[11px] uppercase tracking-[0.2em] text-soft-gray">
           .STL files only
         </p>
-
-        {onTrySample && (
-          <button
-            type="button"
-            onClick={onTrySample}
-            className="mt-4 cursor-pointer text-xs text-electric-blue hover:underline"
-          >
-            Or try the demo pyramid
-          </button>
-        )}
       </motion.div>
 
       <input

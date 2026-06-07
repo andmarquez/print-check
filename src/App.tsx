@@ -10,14 +10,6 @@ import { STLUploader } from './components/STLUploader'
 import { TopNav } from './components/layout/TopNav'
 import { useAnalysis } from './hooks/useAnalysis'
 
-function getSiteUrl(): string | undefined {
-  if (typeof window === 'undefined') return undefined
-  if (window.location.hostname.endsWith('github.io')) {
-    return `${window.location.origin}${import.meta.env.BASE_URL}`
-  }
-  return undefined
-}
-
 export default function App() {
   const [settingsOpen, setSettingsOpen] = useState(false)
   const [savedOpen, setSavedOpen] = useState(false)
@@ -48,12 +40,6 @@ export default function App() {
     setTimeout(() => setSaveToast(null), 2500)
   }
 
-  const loadSample = async () => {
-    const res = await fetch(`${import.meta.env.BASE_URL}assets/sample-models/demo-pyramid.stl`)
-    const blob = await res.blob()
-    handleFileUpload(new File([blob], 'demo-pyramid.stl', { type: 'application/octet-stream' }))
-  }
-
   const isScanning = phase === 'scanning'
   const isComplete = phase === 'complete'
   const hasFile = stlFile !== null
@@ -64,17 +50,17 @@ export default function App() {
       : { x: 0, y: 0, z: 0 }
 
   return (
-    <div className="flex h-full flex-col bg-warm-white">
+    <div className="flex h-full flex-col">
       <TopNav
         onUpload={triggerUpload}
         onSaved={() => setSavedOpen(true)}
         onSettings={() => setSettingsOpen(true)}
         fileName={stlFile?.name}
-        siteUrl={getSiteUrl()}
+        showSaved={hasFile}
       />
 
       {saveToast && (
-        <div className="fixed right-6 top-20 z-[80] rounded-xl bg-charcoal px-4 py-2 text-xs text-warm-white shadow-lg">
+        <div className="glass-dark fixed right-6 top-20 z-[80] px-4 py-2 text-xs shadow-lg">
           {saveToast}
         </div>
       )}
@@ -92,7 +78,7 @@ export default function App() {
 
           <ScanAnimation scanning={isScanning} scanStage={scanStage} scanProgress={scanProgress} />
 
-          <STLUploader onFileSelect={handleFileUpload} visible={phase === 'empty'} onTrySample={loadSample} />
+          <STLUploader onFileSelect={handleFileUpload} visible={phase === 'empty'} />
 
           <input
             id="stl-upload-input"
@@ -108,22 +94,6 @@ export default function App() {
         </section>
 
         <aside className="scrollbar-thin flex min-w-0 flex-[2] flex-col gap-4 overflow-y-auto pr-1">
-          {!hasFile && (
-            <div className="glass-panel flex flex-1 flex-col items-center justify-center rounded-2xl p-8 text-center">
-              <p className="font-display text-4xl font-light tracking-tight text-charcoal/20">Print Check</p>
-              <p className="mt-3 max-w-xs text-sm leading-relaxed text-charcoal-soft">
-                Upload an STL, set your print size, then calculate true print cost.
-              </p>
-              <button
-                type="button"
-                onClick={loadSample}
-                className="mt-6 cursor-pointer rounded-xl border border-sand px-4 py-2 text-xs font-medium text-charcoal-soft hover:bg-cream"
-              >
-                Try demo pyramid
-              </button>
-            </div>
-          )}
-
           {phase === 'sizing' && printInputs && originalDimensions && (
             <DesiredSizePanel
               originalDimensions={originalDimensions}

@@ -31,7 +31,7 @@ export function SettingsPanel({ open, onClose, onSaved }: SettingsPanelProps) {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="fixed inset-0 z-[60] bg-charcoal/20 backdrop-blur-sm"
+            className="fixed inset-0 z-[60] bg-charcoal/15 backdrop-blur-md"
             onClick={onClose}
           />
           <motion.div
@@ -41,7 +41,7 @@ export function SettingsPanel({ open, onClose, onSaved }: SettingsPanelProps) {
             transition={{ ease: [0.22, 1, 0.36, 1] }}
             className="glass-panel fixed right-0 top-0 z-[70] flex h-full w-full max-w-md flex-col rounded-none border-r-0"
           >
-            <div className="flex items-center justify-between border-b border-sand/50 px-6 py-5">
+            <div className="flex items-center justify-between border-b border-white/35 px-6 py-5">
               <div>
                 <h2 className="font-display text-xl font-medium text-charcoal">Settings</h2>
                 <p className="text-[10px] uppercase tracking-[0.2em] text-soft-gray">
@@ -51,7 +51,7 @@ export function SettingsPanel({ open, onClose, onSaved }: SettingsPanelProps) {
               <button
                 type="button"
                 onClick={onClose}
-                className="cursor-pointer rounded-lg px-3 py-1.5 text-sm text-charcoal-soft hover:bg-cream"
+                className="glass-button cursor-pointer px-3 py-1.5 text-sm text-charcoal-soft"
               >
                 Close
               </button>
@@ -75,12 +75,12 @@ export function SettingsPanel({ open, onClose, onSaved }: SettingsPanelProps) {
                     value={settings.openaiApiKey}
                     onChange={(e) => setSettings({ ...settings, openaiApiKey: e.target.value })}
                     placeholder="sk-..."
-                    className="flex-1 rounded-lg border border-sand/60 bg-warm-white/80 px-3 py-2 text-sm outline-none focus:border-electric-blue/40"
+                    className="glass-input flex-1 px-3 py-2 text-sm"
                   />
                   <button
                     type="button"
                     onClick={() => setShowKey(!showKey)}
-                    className="cursor-pointer rounded-lg border border-sand/60 px-3 text-xs text-charcoal-soft"
+                    className="glass-button cursor-pointer px-3 text-xs text-charcoal-soft"
                   >
                     {showKey ? 'Hide' : 'Show'}
                   </button>
@@ -91,7 +91,7 @@ export function SettingsPanel({ open, onClose, onSaved }: SettingsPanelProps) {
                 <select
                   value={settings.aiModel}
                   onChange={(e) => setSettings({ ...settings, aiModel: e.target.value })}
-                  className="mt-1 w-full rounded-lg border border-sand/60 bg-warm-white/80 px-3 py-2 text-sm outline-none"
+                  className="glass-input mt-1 px-3 py-2 text-sm"
                 >
                   <option value="gpt-4o-mini">gpt-4o-mini (recommended)</option>
                   <option value="gpt-4o">gpt-4o</option>
@@ -128,11 +128,11 @@ export function SettingsPanel({ open, onClose, onSaved }: SettingsPanelProps) {
               </section>
             </div>
 
-            <div className="border-t border-sand/50 px-6 py-4">
+            <div className="border-t border-white/35 px-6 py-4">
               <button
                 type="button"
                 onClick={handleSave}
-                className="w-full cursor-pointer rounded-xl bg-charcoal py-3 text-sm font-medium text-warm-white shadow-md hover:bg-charcoal-soft"
+                className="glass-button-primary w-full cursor-pointer py-3 text-sm font-medium"
               >
                 Save Settings
               </button>
@@ -165,7 +165,7 @@ function Field({
         step={step}
         value={value}
         onChange={(e) => onChange(parseFloat(e.target.value) || 0)}
-        className="mt-1 w-full rounded-lg border border-sand/60 bg-warm-white/80 px-3 py-2 text-sm outline-none"
+        className="glass-input mt-1 px-3 py-2 text-sm"
       />
     </div>
   )

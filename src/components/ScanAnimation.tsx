@@ -33,7 +33,7 @@ export function ScanAnimation({ scanning, scanStage, scanProgress }: ScanAnimati
               </span>
             </div>
 
-            <div className="mb-4 h-0.5 overflow-hidden rounded-full bg-sand">
+            <div className="glass-progress mb-4 h-0.5">
               <motion.div
                 className="h-full rounded-full bg-gradient-to-r from-electric-blue to-vibrant-orange"
                 initial={{ width: 0 }}

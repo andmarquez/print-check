@@ -42,7 +42,7 @@ export function SavedAnalysesPanel({ open, onClose, onLoad }: SavedAnalysesPanel
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="fixed inset-0 z-[60] bg-charcoal/20 backdrop-blur-sm"
+            className="fixed inset-0 z-[60] bg-charcoal/15 backdrop-blur-md"
             onClick={onClose}
           />
           <motion.div
@@ -61,7 +61,7 @@ export function SavedAnalysesPanel({ open, onClose, onLoad }: SavedAnalysesPanel
               <button
                 type="button"
                 onClick={onClose}
-                className="cursor-pointer rounded-lg px-3 py-1.5 text-sm text-charcoal-soft hover:bg-cream"
+                className="glass-button cursor-pointer px-3 py-1.5 text-sm text-charcoal-soft"
               >
                 Close
               </button>
@@ -79,7 +79,7 @@ export function SavedAnalysesPanel({ open, onClose, onLoad }: SavedAnalysesPanel
               {records.map((record) => (
                 <div
                   key={record.id}
-                  className="flex items-center gap-3 rounded-xl bg-warm-white/60 p-3"
+                  className="glass-inset flex items-center gap-3 p-3"
                 >
                   {record.thumbnail ? (
                     <img
@@ -105,14 +105,14 @@ export function SavedAnalysesPanel({ open, onClose, onLoad }: SavedAnalysesPanel
                       onLoad(record)
                       onClose()
                     }}
-                    className="cursor-pointer rounded-lg bg-charcoal px-3 py-1.5 text-xs font-medium text-warm-white"
+                    className="glass-button-dark cursor-pointer px-3 py-1.5 text-xs font-medium"
                   >
                     Load
                   </button>
                   <button
                     type="button"
                     onClick={() => handleDelete(record.id)}
-                    className="cursor-pointer rounded-lg px-2 py-1.5 text-xs text-vibrant-orange hover:bg-vibrant-orange/10"
+                    className="glass-button cursor-pointer px-2 py-1.5 text-xs text-vibrant-orange"
                   >
                     Delete
                   </button>

@@ -35,7 +35,7 @@ export function CostCalculator({ inputs, analysis, onUpdate, visible }: CostCalc
           <select
             value={inputs.printerProfileId}
             onChange={(e) => onUpdate({ printerProfileId: e.target.value })}
-            className="w-full rounded-lg border border-sand/60 bg-warm-white/80 px-3 py-2 text-sm"
+            className="glass-input px-3 py-2 text-sm"
           >
             {PRINTER_PROFILES.map((p) => (
               <option key={p.id} value={p.id}>
@@ -46,7 +46,7 @@ export function CostCalculator({ inputs, analysis, onUpdate, visible }: CostCalc
         </Field>
 
         {isCustom && (
-          <div className="grid grid-cols-2 gap-2 rounded-xl bg-cream/40 p-3">
+          <div className="glass-inset grid grid-cols-2 gap-2 p-3">
             <NumField label="Print speed (mm/s)" value={inputs.customPrinter?.printSpeedMmS ?? 50} onChange={(v) => updateCustom(onUpdate, inputs, { printSpeedMmS: v })} />
             <NumField label="Power (W)" value={inputs.customPrinter?.powerWatts ?? 160} onChange={(v) => updateCustom(onUpdate, inputs, { powerWatts: v })} />
             <NumField label="Nozzle (mm)" value={inputs.customPrinter?.nozzleSizeMm ?? 0.4} step={0.1} onChange={(v) => updateCustom(onUpdate, inputs, { nozzleSizeMm: v })} />
@@ -65,8 +65,8 @@ export function CostCalculator({ inputs, analysis, onUpdate, visible }: CostCalc
                 onClick={() => onUpdate({ qualityPreset: q.id, layerHeight: q.layerHeight })}
                 className={`cursor-pointer rounded-lg px-3 py-2 text-xs font-medium transition-colors ${
                   inputs.qualityPreset === q.id
-                    ? 'bg-charcoal text-warm-white'
-                    : 'bg-warm-white/80 text-charcoal-soft hover:bg-cream'
+                    ? 'glass-toggle-active'
+                    : 'glass-toggle text-charcoal-soft'
                 }`}
               >
                 {q.label}
@@ -80,7 +80,7 @@ export function CostCalculator({ inputs, analysis, onUpdate, visible }: CostCalc
             <select
               value={inputs.materialType}
               onChange={(e) => onUpdate({ materialType: e.target.value })}
-              className="w-full rounded-lg border border-sand/60 bg-warm-white/80 px-3 py-2 text-sm"
+              className="glass-input px-3 py-2 text-sm"
             >
               {MATERIALS.map((m) => (
                 <option key={m} value={m}>
@@ -153,7 +153,7 @@ export function CostCalculator({ inputs, analysis, onUpdate, visible }: CostCalc
         </label>
       </div>
 
-      <div className="mt-5 rounded-xl bg-charcoal p-4 text-warm-white">
+      <div className="glass-dark mt-5 p-4">
         <p className="text-center text-[10px] uppercase tracking-[0.2em] text-soft-gray">Cost Breakdown</p>
         <p className="mt-1 text-center font-display text-3xl font-semibold text-electric-blue-soft">
           <AnimatedValue value={`$${costBreakdown.totalCost.toFixed(2)}`} />
@@ -178,7 +178,7 @@ export function CostCalculator({ inputs, analysis, onUpdate, visible }: CostCalc
 
 function CostSection({ title, children }: { title: string; children: React.ReactNode }) {
   return (
-    <div className="rounded-xl border border-sand/40 bg-warm-white/40 p-3">
+    <div className="glass-inset p-3">
       <h4 className="text-[10px] font-semibold uppercase tracking-[0.15em] text-electric-blue">{title}</h4>
       <div className="mt-3 space-y-3">{children}</div>
     </div>
@@ -189,7 +189,7 @@ function ReadOnlyField({ label, value, hint }: { label: string; value: string; h
   return (
     <div>
       <p className="text-[10px] uppercase tracking-[0.15em] text-soft-gray">{label}</p>
-      <p className="mt-1 rounded-lg bg-cream/50 px-3 py-2 text-sm font-medium text-charcoal">
+      <p className="glass-inset mt-1 px-3 py-2 text-sm font-medium text-charcoal">
         <AnimatedValue value={value} />
       </p>
       {hint && <p className="mt-1 text-[10px] text-charcoal-soft">{hint}</p>}
@@ -252,7 +252,7 @@ function NumField({
           const p = parseFloat(e.target.value)
           if (Number.isFinite(p)) onChange(p)
         }}
-        className="w-full rounded-lg border border-sand/60 bg-warm-white/80 px-3 py-2 text-sm"
+        className="glass-input px-3 py-2 text-sm"
       />
     </Field>
   )
@@ -301,7 +301,7 @@ function Slider({
 
 function BreakdownStat({ label, value }: { label: string; value: string }) {
   return (
-    <div className="rounded-lg bg-warm-white/10 px-2 py-2 text-center">
+    <div className="glass-inset px-2 py-2 text-center">
       <p className="text-[9px] uppercase tracking-wider text-soft-gray">{label}</p>
       <p className="font-display text-sm font-semibold">
         <AnimatedValue value={value} />

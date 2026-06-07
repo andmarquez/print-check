@@ -15,7 +15,7 @@ export function GlassPanel({ children, className = '', delay = 0 }: GlassPanelPr
       transition={{ duration: 0.5, delay, ease: [0.22, 1, 0.36, 1] }}
       className={`glass-panel rounded-2xl ${className}`}
     >
-      {children}
+      <div className="relative z-[1]">{children}</div>
     </motion.div>
   )
 }
