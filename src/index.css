@@ -303,6 +303,14 @@ body {
   -webkit-backdrop-filter: blur(12px) saturate(140%);
 }
 
+.splash-screen {
+  background:
+    radial-gradient(ellipse 80% 60% at 10% 0%, color-mix(in srgb, var(--color-electric-blue) 8%, transparent), transparent 55%),
+    radial-gradient(ellipse 70% 50% at 90% 10%, color-mix(in srgb, var(--color-vibrant-orange) 6%, transparent), transparent 50%),
+    radial-gradient(ellipse 60% 40% at 50% 100%, color-mix(in srgb, var(--color-cream) 90%, white), transparent 70%),
+    var(--color-warm-white);
+}
+
 .glass-progress {
   overflow: hidden;
   border-radius: 9999px;

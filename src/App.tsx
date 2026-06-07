@@ -65,73 +65,89 @@ export default function App() {
         </div>
       )}
 
-      <main className="relative flex min-h-0 flex-1 gap-4 p-4 lg:p-6">
-        <section className="relative min-w-0 flex-[3]">
-          <ModelViewer
-            stlUrl={stlFile?.url ?? null}
-            scanning={isScanning}
-            scanStage={scanStage}
-            scanProgress={scanProgress}
-            rotationDeg={viewerRotation}
-            onCanvasReady={registerViewerCanvas}
-          />
-
-          <ScanAnimation scanning={isScanning} scanStage={scanStage} scanProgress={scanProgress} />
-
-          <input
-            id="stl-upload-input"
-            type="file"
-            accept=".stl"
-            className="hidden"
-            onChange={(e) => {
-              const file = e.target.files?.[0]
-              if (file) handleFileUpload(file)
-              e.target.value = ''
-            }}
-          />
-        </section>
-
-        <aside className="scrollbar-thin flex min-w-0 flex-[2] flex-col gap-4 overflow-y-auto pr-1">
-          {phase === 'sizing' && printInputs && originalDimensions && (
-            <DesiredSizePanel
-              originalDimensions={originalDimensions}
-              inputs={printInputs}
-              onUpdate={updatePrintInputs}
-              onStartAnalysis={startAnalysis}
-              visible
+      {phase !== 'empty' && (
+        <main className="relative flex min-h-0 flex-1 gap-4 p-4 lg:p-6">
+          <section className="relative min-w-0 flex-[3]">
+            <ModelViewer
+              stlUrl={stlFile?.url ?? null}
+              scanning={isScanning}
+              scanStage={scanStage}
+              scanProgress={scanProgress}
+              rotationDeg={viewerRotation}
+              onCanvasReady={registerViewerCanvas}
             />
-          )}
 
-          {analysis && printInputs && isComplete && (
-            <>
-              <CostCalculator
+            <ScanAnimation scanning={isScanning} scanStage={scanStage} scanProgress={scanProgress} />
+
+            <input
+              id="stl-upload-input"
+              type="file"
+              accept=".stl"
+              className="hidden"
+              onChange={(e) => {
+                const file = e.target.files?.[0]
+                if (file) handleFileUpload(file)
+                e.target.value = ''
+              }}
+            />
+          </section>
+
+          <aside className="scrollbar-thin flex min-w-0 flex-[2] flex-col gap-4 overflow-y-auto pr-1">
+            {phase === 'sizing' && printInputs && originalDimensions && (
+              <DesiredSizePanel
+                originalDimensions={originalDimensions}
                 inputs={printInputs}
-                analysis={analysis}
                 onUpdate={updatePrintInputs}
+                onStartAnalysis={startAnalysis}
                 visible
               />
-              {stlFile && (
-                <ExportReportButton
-                  file={stlFile}
-                  analysis={analysis}
-                  visible
-                  getPreviewDataUrl={getPreviewDataUrl}
-                  onSave={handleSave}
-                />
-              )}
-            </>
-          )}
+            )}
 
-          {(phase === 'scanning' || phase === 'analyzing') && (
-            <div className="glass-panel flex flex-col items-center justify-center rounded-2xl p-8 text-center">
-              <div className="h-8 w-8 animate-spin rounded-full border-2 border-sand border-t-electric-blue" />
-              <p className="mt-4 font-display text-lg font-light text-charcoal">
-                {phase === 'scanning' ? 'Scanning model...' : 'Calculating estimates...'}
-              </p>
-            </div>
-          )}
-        </aside>
-      </main>
+            {analysis && printInputs && isComplete && (
+              <>
+                <CostCalculator
+                  inputs={printInputs}
+                  analysis={analysis}
+                  onUpdate={updatePrintInputs}
+                  visible
+                />
+                {stlFile && (
+                  <ExportReportButton
+                    file={stlFile}
+                    analysis={analysis}
+                    visible
+                    getPreviewDataUrl={getPreviewDataUrl}
+                    onSave={handleSave}
+                  />
+                )}
+              </>
+            )}
+
+            {(phase === 'scanning' || phase === 'analyzing') && (
+              <div className="glass-panel flex flex-col items-center justify-center rounded-2xl p-8 text-center">
+                <div className="h-8 w-8 animate-spin rounded-full border-2 border-sand border-t-electric-blue" />
+                <p className="mt-4 font-display text-lg font-light text-charcoal">
+                  {phase === 'scanning' ? 'Scanning model...' : 'Calculating estimates...'}
+                </p>
+              </div>
+            )}
+          </aside>
+        </main>
+      )}
+
+      {phase === 'empty' && (
+        <input
+          id="stl-upload-input"
+          type="file"
+          accept=".stl"
+          className="hidden"
+          onChange={(e) => {
+            const file = e.target.files?.[0]
+            if (file) handleFileUpload(file)
+            e.target.value = ''
+          }}
+        />
+      )}
 
       <STLUploader onFileSelect={handleFileUpload} visible={phase === 'empty'} />
 
