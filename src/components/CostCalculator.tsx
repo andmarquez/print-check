@@ -4,7 +4,7 @@ import { QUALITY_PRESETS } from '../types/analysis'
 import type { AnalysisResult } from '../types/analysis'
 import { AnimatedValue } from './AnimatedValue'
 import { GlassPanel } from './layout/GlassPanel'
-import { SectionHeader } from './AnalysisDashboard'
+import { SectionHeader } from './layout/SectionHeader'
 
 interface CostCalculatorProps {
   inputs: PrintCalculationInputs

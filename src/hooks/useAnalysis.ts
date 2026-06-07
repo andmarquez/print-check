@@ -46,11 +46,7 @@ export function useAnalysis() {
   }, [geometryStats, printInputs, aiRecommendations, savedSnapshot])
 
   const revealSections = useCallback(async () => {
-    const sections = ['summary', 'metrics', 'health', 'ai', 'settings', 'orientation', 'cost']
-    for (const section of sections) {
-      await new Promise((r) => setTimeout(r, 180))
-      setRevealedSections((prev) => [...prev, section])
-    }
+    setRevealedSections(['cost'])
   }, [])
 
   const runScanSequence = useCallback(async () => {

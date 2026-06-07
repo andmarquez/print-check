@@ -1,7 +1,7 @@
 import { motion } from 'framer-motion'
 import type { ModelDimensions, PrintCalculationInputs, SizeUnit } from '../types/analysis'
 import { GlassPanel } from './layout/GlassPanel'
-import { SectionHeader } from './AnalysisDashboard'
+import { SectionHeader } from './layout/SectionHeader'
 
 interface DesiredSizePanelProps {
   originalDimensions: ModelDimensions

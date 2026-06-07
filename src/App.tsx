@@ -1,17 +1,11 @@
 import { useState } from 'react'
-import { AIPrintAdvisor } from './components/AIPrintAdvisor'
-import { AnalysisDashboard } from './components/AnalysisDashboard'
 import { CostCalculator } from './components/CostCalculator'
 import { DesiredSizePanel } from './components/DesiredSizePanel'
 import { ExportReportButton } from './components/ExportReportButton'
 import { ModelViewer } from './components/ModelViewer/ModelViewer'
-import { OrientationComparison } from './components/OrientationComparison'
-import { PrintHealthReport } from './components/PrintHealthReport'
-import { PrintSettingsPanel } from './components/PrintSettingsPanel'
 import { SavedAnalysesPanel } from './components/SavedAnalysesPanel'
 import { ScanAnimation } from './components/ScanAnimation'
 import { SettingsPanel } from './components/SettingsPanel'
-import { SettingsSummaryCard } from './components/SettingsSummaryCard'
 import { STLUploader } from './components/STLUploader'
 import { TopNav } from './components/layout/TopNav'
 import { useAnalysis } from './hooks/useAnalysis'
@@ -37,7 +31,6 @@ export default function App() {
     analysis,
     printInputs,
     originalDimensions,
-    revealedSections,
     handleFileUpload,
     updatePrintInputs,
     startAnalysis,
@@ -117,9 +110,9 @@ export default function App() {
         <aside className="scrollbar-thin flex min-w-0 flex-[2] flex-col gap-4 overflow-y-auto pr-1">
           {!hasFile && (
             <div className="glass-panel flex flex-1 flex-col items-center justify-center rounded-2xl p-8 text-center">
-              <p className="font-display text-4xl font-light tracking-tight text-charcoal/20">Analysis</p>
+              <p className="font-display text-4xl font-light tracking-tight text-charcoal/20">Print Check</p>
               <p className="mt-3 max-w-xs text-sm leading-relaxed text-charcoal-soft">
-                Upload an STL, set your desired print size, then run a physics-based pre-flight check.
+                Upload an STL, set your print size, then calculate true print cost.
               </p>
               <button
                 type="button"
@@ -141,40 +134,19 @@ export default function App() {
             />
           )}
 
-          {analysis && printInputs && (
+          {analysis && printInputs && isComplete && (
             <>
-              <SettingsSummaryCard
-                summary={analysis.settingsSummary}
-                visible={revealedSections.includes('summary')}
-              />
-              <AnalysisDashboard
-                metrics={analysis.metrics}
-                costBreakdown={analysis.costBreakdown}
-                visible={revealedSections.includes('metrics')}
-              />
-              <PrintHealthReport issues={analysis.issues} visible={revealedSections.includes('health')} />
-              <AIPrintAdvisor
-                recommendations={analysis.aiRecommendations}
-                visible={revealedSections.includes('ai')}
-              />
-              <PrintSettingsPanel settings={analysis.printSettings} visible={revealedSections.includes('settings')} />
-              <OrientationComparison
-                orientation={analysis.orientation}
-                applyRecommended={printInputs.applyRecommendedOrientation}
-                onApplyRecommended={(apply) => updatePrintInputs({ applyRecommendedOrientation: apply })}
-                visible={revealedSections.includes('orientation')}
-              />
               <CostCalculator
                 inputs={printInputs}
                 analysis={analysis}
                 onUpdate={updatePrintInputs}
-                visible={revealedSections.includes('cost')}
+                visible
               />
               {stlFile && (
                 <ExportReportButton
                   file={stlFile}
                   analysis={analysis}
-                  visible={isComplete}
+                  visible
                   getPreviewDataUrl={getPreviewDataUrl}
                   onSave={handleSave}
                 />
