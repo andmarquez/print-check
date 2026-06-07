@@ -47,7 +47,7 @@ export function STLUploader({ onFileSelect, visible }: STLUploaderProps) {
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
-      className="glass-overlay absolute inset-0 z-30 flex items-center justify-center"
+      className="glass-overlay fixed inset-x-0 bottom-0 top-16 z-30 flex items-center justify-center"
       onDragOver={(e) => e.preventDefault()}
       onDragEnter={(e) => {
         e.preventDefault()
@@ -59,10 +59,10 @@ export function STLUploader({ onFileSelect, visible }: STLUploaderProps) {
       onDrop={onDrop}
     >
       <motion.div
-        initial={{ scale: 0.95, opacity: 0 }}
-        animate={{ scale: 1, opacity: 1 }}
+        initial={{ opacity: 0, y: 12 }}
+        animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
-        className="glass-panel flex max-w-lg flex-col items-center rounded-3xl px-16 py-14 text-center"
+        className="flex max-w-lg flex-col items-center px-8 text-center"
       >
         <div className="glass-inset mb-6 flex h-16 w-16 items-center justify-center rounded-2xl">
           <svg width="28" height="28" viewBox="0 0 28 28" fill="none">

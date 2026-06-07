@@ -78,8 +78,6 @@ export default function App() {
 
           <ScanAnimation scanning={isScanning} scanStage={scanStage} scanProgress={scanProgress} />
 
-          <STLUploader onFileSelect={handleFileUpload} visible={phase === 'empty'} />
-
           <input
             id="stl-upload-input"
             type="file"
@@ -134,6 +132,8 @@ export default function App() {
           )}
         </aside>
       </main>
+
+      <STLUploader onFileSelect={handleFileUpload} visible={phase === 'empty'} />
 
       <SettingsPanel open={settingsOpen} onClose={() => setSettingsOpen(false)} onSaved={() => {}} />
 
