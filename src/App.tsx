@@ -13,7 +13,6 @@ import { ScanAnimation } from './components/ScanAnimation'
 import { SettingsPanel } from './components/SettingsPanel'
 import { SettingsSummaryCard } from './components/SettingsSummaryCard'
 import { STLUploader } from './components/STLUploader'
-import { StatsDock } from './components/layout/StatsDock'
 import { TopNav } from './components/layout/TopNav'
 import { useAnalysis } from './hooks/useAnalysis'
 
@@ -101,8 +100,6 @@ export default function App() {
           <ScanAnimation scanning={isScanning} scanStage={scanStage} scanProgress={scanProgress} />
 
           <STLUploader onFileSelect={handleFileUpload} visible={phase === 'empty'} onTrySample={loadSample} />
-
-          <StatsDock analysis={analysis} visible={isComplete} />
 
           <input
             id="stl-upload-input"
