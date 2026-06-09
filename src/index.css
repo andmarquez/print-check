@@ -410,11 +410,11 @@ body {
   font-weight: 300;
   letter-spacing: 0.2em;
   text-transform: uppercase;
-  color: #d1d1d1;
+  color: #a1a1aa;
 }
 
 .nav-label:hover {
-  color: #ececec;
+  color: #d4d4d8;
 }
 
 .scrollbar-thin {
