@@ -404,6 +404,19 @@ body {
   z-index: 1;
 }
 
+.nav-label {
+  font-family: var(--font-display);
+  font-size: 11px;
+  font-weight: 400;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: #d1d1d1;
+}
+
+.nav-label:hover {
+  color: #ececec;
+}
+
 .scrollbar-thin {
   scrollbar-width: thin;
   scrollbar-color: var(--color-light-beige) transparent;
