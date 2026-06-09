@@ -2,6 +2,7 @@ import { motion } from 'framer-motion'
 import { useCallback, useRef } from 'react'
 
 const SPLASH_VIDEO = `${import.meta.env.BASE_URL}assets/splash/bg-video.mp4`
+const SPLASH_EYES = `${import.meta.env.BASE_URL}assets/splash/eyes.gif`
 
 interface STLUploaderProps {
   onFileSelect: (file: File) => void
@@ -64,6 +65,13 @@ export function STLUploader({ onFileSelect, visible }: STLUploaderProps) {
       </video>
 
       <div className="splash-scrim pointer-events-none absolute inset-0" aria-hidden />
+
+      <img
+        src={SPLASH_EYES}
+        alt=""
+        className="pointer-events-none absolute bottom-8 left-1/2 z-10 max-h-40 w-auto -translate-x-1/2 object-contain drop-shadow-lg"
+        aria-hidden
+      />
 
       <div className="relative z-10 flex flex-col items-center px-8 text-center">
         <svg
