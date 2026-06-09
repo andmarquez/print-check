@@ -71,7 +71,7 @@ export function STLUploader({ onFileSelect, visible }: STLUploaderProps) {
         alt=""
         width={743}
         height={436}
-        className="pointer-events-none absolute bottom-0 left-1/2 z-10 block origin-bottom -translate-x-1/2 drop-shadow-lg"
+        className="pointer-events-none absolute bottom-0 left-1/2 z-10 block origin-bottom -translate-x-1/2 scale-50 drop-shadow-lg"
         aria-hidden
       />
 
