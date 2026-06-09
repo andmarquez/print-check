@@ -47,7 +47,7 @@ export default function App() {
       : { x: 0, y: 0, z: 0 }
 
   return (
-    <div className="flex h-full flex-col">
+    <div className="flex min-h-0 flex-1 flex-col overflow-hidden">
       <TopNav onSettings={() => setSettingsOpen(true)} />
 
       {saveToast && (
@@ -72,8 +72,8 @@ export default function App() {
           />
         </>
       ) : (
-        <main className="relative flex min-h-0 flex-1 gap-4 overflow-hidden p-4 lg:p-6">
-          <section className="relative min-h-0 min-w-0 flex-[3]">
+        <main className="relative grid min-h-0 flex-1 grid-cols-1 grid-rows-[minmax(0,3fr)_minmax(0,2fr)] gap-4 overflow-hidden p-4 lg:grid-cols-[minmax(0,3fr)_minmax(0,2fr)] lg:grid-rows-1 lg:p-6">
+          <section className="relative h-full min-h-0 min-w-0 overflow-hidden">
             <ModelViewer
               stlUrl={stlFile?.url ?? null}
               scanning={isScanning}
@@ -98,45 +98,49 @@ export default function App() {
             />
           </section>
 
-          <aside className="scrollbar-thin flex min-h-0 min-w-0 flex-[2] flex-col gap-4 overflow-y-auto overscroll-y-contain pr-1">
-            {phase === 'sizing' && printInputs && originalDimensions && (
-              <DesiredSizePanel
-                originalDimensions={originalDimensions}
-                inputs={printInputs}
-                onUpdate={updatePrintInputs}
-                onStartAnalysis={startAnalysis}
-                visible
-              />
-            )}
-
-            {analysis && printInputs && isComplete && (
-              <>
-                <CostCalculator
-                  inputs={printInputs}
-                  analysis={analysis}
-                  onUpdate={updatePrintInputs}
-                  visible
-                />
-                {stlFile && (
-                  <ExportReportButton
-                    file={stlFile}
-                    analysis={analysis}
+          <aside className="flex min-h-0 min-w-0 flex-col overflow-hidden">
+            <div className="results-panel-scroll scrollbar-thin min-h-0 flex-1 overflow-y-auto overscroll-y-contain pr-1">
+              <div className="flex flex-col gap-4 pb-4">
+                {phase === 'sizing' && printInputs && originalDimensions && (
+                  <DesiredSizePanel
+                    originalDimensions={originalDimensions}
+                    inputs={printInputs}
+                    onUpdate={updatePrintInputs}
+                    onStartAnalysis={startAnalysis}
                     visible
-                    getPreviewDataUrl={getPreviewDataUrl}
-                    onSave={handleSave}
                   />
                 )}
-              </>
-            )}
 
-            {(phase === 'scanning' || phase === 'analyzing') && (
-            <div className="glass-panel flex flex-col items-center justify-center rounded-2xl p-8 text-center">
-              <div className="h-8 w-8 animate-spin rounded-full border-2 border-zinc-600 border-t-electric-blue" />
-                <p className="mt-4 font-display text-lg font-light text-charcoal">
-                  {phase === 'scanning' ? 'Scanning model...' : 'Calculating estimates...'}
-                </p>
+                {analysis && printInputs && isComplete && (
+                  <>
+                    <CostCalculator
+                      inputs={printInputs}
+                      analysis={analysis}
+                      onUpdate={updatePrintInputs}
+                      visible
+                    />
+                    {stlFile && (
+                      <ExportReportButton
+                        file={stlFile}
+                        analysis={analysis}
+                        visible
+                        getPreviewDataUrl={getPreviewDataUrl}
+                        onSave={handleSave}
+                      />
+                    )}
+                  </>
+                )}
+
+                {(phase === 'scanning' || phase === 'analyzing') && (
+                  <div className="glass-panel flex flex-col items-center justify-center rounded-2xl p-8 text-center">
+                    <div className="h-8 w-8 animate-spin rounded-full border-2 border-zinc-600 border-t-electric-blue" />
+                    <p className="mt-4 font-display text-lg font-light text-charcoal">
+                      {phase === 'scanning' ? 'Scanning model...' : 'Calculating estimates...'}
+                    </p>
+                  </div>
+                )}
               </div>
-            )}
+            </div>
           </aside>
         </main>
       )}
