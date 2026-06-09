@@ -84,13 +84,16 @@ export function STLUploader({ onFileSelect, visible }: STLUploaderProps) {
       <div className="splash-scrim pointer-events-none absolute inset-0" aria-hidden />
       <div className="splash-cursor-glow" aria-hidden />
 
-      <button
-        type="button"
-        className="choose-file-button"
-        onClick={() => inputRef.current?.click()}
-      >
-        Choose File
-      </button>
+      <div className="relative z-10 flex translate-y-[100px] flex-col items-center">
+        <button
+          type="button"
+          className="choose-file-button"
+          onClick={() => inputRef.current?.click()}
+        >
+          Choose File
+        </button>
+        <p className="splash-file-label mt-4">.STL files only</p>
+      </div>
 
       <img
         src={SPLASH_EYES}

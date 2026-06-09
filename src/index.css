@@ -301,7 +301,7 @@ body {
 
 .splash-screen {
   --glow-size: 500px;
-  --glow-color: rgba(45, 255, 206, 0.15);
+  --glow-color: rgba(59, 130, 246, 0.15);
   --x: 50%;
   --y: 50%;
   width: 100%;
@@ -335,21 +335,20 @@ body {
 
 .choose-file-button {
   position: relative;
-  z-index: 10;
   appearance: none;
   cursor: pointer;
   color: #fff;
   font-family: var(--font-sans);
-  font-size: clamp(1.4rem, 3vw, 1.9rem);
+  font-size: 0.875rem;
   font-weight: 500;
   letter-spacing: 0.01em;
-  padding: 1.1rem 4.5rem;
-  border-radius: 32px;
+  padding: 0.75rem 3rem;
+  border-radius: 24px;
   border: 1px solid rgba(255, 255, 255, 0.14);
   background: linear-gradient(180deg, #444 0%, #333 100%);
   box-shadow:
     inset 0 1px 0 rgba(255, 255, 255, 0.08),
-    0 8px 24px rgba(0, 0, 0, 0.45);
+    0 6px 18px rgba(0, 0, 0, 0.45);
   transition:
     transform 0.15s ease,
     box-shadow 0.25s ease,
@@ -357,15 +356,24 @@ body {
 }
 
 .choose-file-button:hover {
-  border-color: rgba(45, 255, 206, 0.5);
+  border-color: rgba(59, 130, 246, 0.5);
   box-shadow:
     inset 0 1px 0 rgba(255, 255, 255, 0.1),
     0 8px 28px rgba(0, 0, 0, 0.5),
-    0 0 40px rgba(45, 255, 206, 0.18);
+    0 0 40px rgba(59, 130, 246, 0.18);
 }
 
 .choose-file-button:active {
   transform: scale(0.98);
+}
+
+.splash-file-label {
+  font-family: var(--font-sans);
+  font-size: 11px;
+  font-weight: 300;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: #a1a1aa;
 }
 
 .glass-progress {
