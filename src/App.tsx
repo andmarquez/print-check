@@ -32,8 +32,6 @@ export default function App() {
     getPreviewDataUrl,
   } = useAnalysis()
 
-  const triggerUpload = () => document.getElementById('stl-upload-input')?.click()
-
   const handleSave = async () => {
     await saveCurrentAnalysis()
     setSaveToast('Analysis saved locally')
@@ -42,7 +40,6 @@ export default function App() {
 
   const isScanning = phase === 'scanning'
   const isComplete = phase === 'complete'
-  const hasFile = stlFile !== null
 
   const viewerRotation =
     printInputs?.applyRecommendedOrientation && analysis
@@ -51,14 +48,7 @@ export default function App() {
 
   return (
     <div className="flex h-full flex-col">
-      <TopNav
-        onUpload={triggerUpload}
-        onSaved={() => setSavedOpen(true)}
-        onSettings={() => setSettingsOpen(true)}
-        fileName={stlFile?.name}
-        showSaved={hasFile}
-        splashActive={phase === 'empty'}
-      />
+      <TopNav onSettings={() => setSettingsOpen(true)} />
 
       {saveToast && (
         <div className="glass-dark fixed right-6 top-20 z-[80] px-4 py-2 text-xs shadow-lg">

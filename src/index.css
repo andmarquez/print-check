@@ -362,6 +362,48 @@ body {
   background-size: 48px 48px;
 }
 
+.nav-bar {
+  background: #000;
+  border-bottom: 1px solid color-mix(in srgb, white 6%, transparent);
+}
+
+.nav-bar::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background-image: radial-gradient(
+    circle,
+    color-mix(in srgb, white 14%, transparent) 1px,
+    transparent 1px
+  );
+  background-size: 14px 14px;
+  mask-image: linear-gradient(to bottom, transparent 0%, rgb(0 0 0 / 0.35) 35%, rgb(0 0 0 / 0.9) 100%);
+  -webkit-mask-image: linear-gradient(to bottom, transparent 0%, rgb(0 0 0 / 0.35) 35%, rgb(0 0 0 / 0.9) 100%);
+}
+
+.nav-bar::after {
+  content: "";
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  width: 28%;
+  height: 70%;
+  pointer-events: none;
+  background:
+    radial-gradient(circle at 70% 80%, color-mix(in srgb, #3b82f6 22%, transparent), transparent 55%),
+    radial-gradient(circle at 85% 70%, color-mix(in srgb, #22c55e 14%, transparent), transparent 50%),
+    radial-gradient(circle at 95% 85%, color-mix(in srgb, #ef4444 12%, transparent), transparent 45%);
+  opacity: 0.35;
+  mask-image: linear-gradient(to top, black, transparent);
+  -webkit-mask-image: linear-gradient(to top, black, transparent);
+}
+
+.nav-bar > * {
+  position: relative;
+  z-index: 1;
+}
+
 .scrollbar-thin {
   scrollbar-width: thin;
   scrollbar-color: var(--color-light-beige) transparent;
