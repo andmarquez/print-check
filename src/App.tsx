@@ -57,6 +57,7 @@ export default function App() {
         onSettings={() => setSettingsOpen(true)}
         fileName={stlFile?.name}
         showSaved={hasFile}
+        splashActive={phase === 'empty'}
       />
 
       {saveToast && (
@@ -139,8 +140,8 @@ export default function App() {
             )}
 
             {(phase === 'scanning' || phase === 'analyzing') && (
-              <div className="glass-panel flex flex-col items-center justify-center rounded-2xl p-8 text-center">
-                <div className="h-8 w-8 animate-spin rounded-full border-2 border-sand border-t-electric-blue" />
+            <div className="glass-panel flex flex-col items-center justify-center rounded-2xl p-8 text-center">
+              <div className="h-8 w-8 animate-spin rounded-full border-2 border-zinc-600 border-t-electric-blue" />
                 <p className="mt-4 font-display text-lg font-light text-charcoal">
                   {phase === 'scanning' ? 'Scanning model...' : 'Calculating estimates...'}
                 </p>

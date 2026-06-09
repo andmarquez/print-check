@@ -41,7 +41,7 @@ export function SettingsPanel({ open, onClose, onSaved }: SettingsPanelProps) {
             transition={{ ease: [0.22, 1, 0.36, 1] }}
             className="glass-panel fixed right-0 top-0 z-[70] flex h-full w-full max-w-md flex-col rounded-none border-r-0"
           >
-            <div className="flex items-center justify-between border-b border-white/35 px-6 py-5">
+            <div className="flex items-center justify-between border-b border-white/10 px-6 py-5">
               <div>
                 <h2 className="font-display text-xl font-medium text-charcoal">Settings</h2>
                 <p className="text-[10px] uppercase tracking-[0.2em] text-soft-gray">
@@ -128,7 +128,7 @@ export function SettingsPanel({ open, onClose, onSaved }: SettingsPanelProps) {
               </section>
             </div>
 
-            <div className="border-t border-white/35 px-6 py-4">
+            <div className="border-t border-white/10 px-6 py-4">
               <button
                 type="button"
                 onClick={handleSave}

@@ -1,6 +1,8 @@
 import { motion } from 'framer-motion'
 import { useCallback, useRef } from 'react'
 
+const SPLASH_VIDEO = `${import.meta.env.BASE_URL}assets/splash/bg-video.mp4`
+
 interface STLUploaderProps {
   onFileSelect: (file: File) => void
   visible: boolean
@@ -39,7 +41,7 @@ export function STLUploader({ onFileSelect, visible }: STLUploaderProps) {
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
-      className="splash-screen flex min-h-0 w-full flex-1 items-center justify-center"
+      className="splash-screen relative flex min-h-0 w-full flex-1 items-center justify-center overflow-hidden"
       onDragOver={(e) => e.preventDefault()}
       onDragEnter={(e) => {
         e.preventDefault()
@@ -50,28 +52,41 @@ export function STLUploader({ onFileSelect, visible }: STLUploaderProps) {
       }}
       onDrop={onDrop}
     >
-      <div className="flex flex-col items-center px-8 text-center">
+      <video
+        className="pointer-events-none absolute inset-0 h-full w-full object-cover"
+        autoPlay
+        loop
+        muted
+        playsInline
+        aria-hidden
+      >
+        <source src={SPLASH_VIDEO} type="video/mp4" />
+      </video>
+
+      <div className="splash-scrim pointer-events-none absolute inset-0" aria-hidden />
+
+      <div className="relative z-10 flex flex-col items-center px-8 text-center">
         <svg
-          className="mb-6"
-          width="28"
-          height="28"
+          className="mb-6 drop-shadow-lg"
+          width="32"
+          height="32"
           viewBox="0 0 28 28"
           fill="none"
           aria-hidden
         >
           <path
             d="M6 20 L14 6 L22 20 Z"
-            stroke="#0066FF"
+            stroke="#60a5fa"
             strokeWidth="1.5"
             strokeLinejoin="round"
           />
-          <line x1="8" y1="16" x2="20" y2="16" stroke="#FF6B35" strokeWidth="1" />
+          <line x1="8" y1="16" x2="20" y2="16" stroke="#fb923c" strokeWidth="1" />
         </svg>
 
-        <h2 className="font-display text-3xl font-light tracking-tight text-charcoal">
+        <h2 className="font-display text-3xl font-light tracking-tight text-white drop-shadow-md">
           Upload your STL
         </h2>
-        <p className="mt-3 max-w-md text-sm leading-relaxed text-charcoal-soft">
+        <p className="mt-3 max-w-md text-sm leading-relaxed text-zinc-300 drop-shadow">
           Drop a model file to begin pre-flight analysis. We'll inspect geometry, estimate costs,
           and recommend optimal print settings.
         </p>
@@ -84,7 +99,7 @@ export function STLUploader({ onFileSelect, visible }: STLUploaderProps) {
           Choose File
         </button>
 
-        <p className="mt-4 text-[11px] uppercase tracking-[0.2em] text-soft-gray">
+        <p className="mt-4 text-[11px] uppercase tracking-[0.2em] text-zinc-400">
           .STL files only
         </p>
       </div>

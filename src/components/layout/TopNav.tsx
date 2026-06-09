@@ -6,11 +6,16 @@ interface TopNavProps {
   onSettings: () => void
   fileName?: string
   showSaved?: boolean
+  splashActive?: boolean
 }
 
-export function TopNav({ onUpload, onSaved, onSettings, fileName, showSaved = true }: TopNavProps) {
+export function TopNav({ onUpload, onSaved, onSettings, fileName, showSaved = true, splashActive = false }: TopNavProps) {
   return (
-    <header className="glass-nav relative z-50 flex h-16 shrink-0 items-center justify-between px-6">
+    <header
+      className={`relative z-50 flex h-16 shrink-0 items-center justify-between px-6 ${
+        splashActive ? 'glass-nav-splash' : 'glass-nav'
+      }`}
+    >
       <div className="flex items-center gap-4">
         <motion.div
           initial={{ opacity: 0, x: -8 }}
