@@ -69,7 +69,7 @@ export function STLUploader({ onFileSelect, visible }: STLUploaderProps) {
       <img
         src={SPLASH_EYES}
         alt=""
-        className="pointer-events-none absolute bottom-8 left-1/2 z-10 max-h-40 w-auto -translate-x-1/2 object-contain drop-shadow-lg"
+        className="pointer-events-none absolute bottom-0 left-1/2 z-10 max-h-80 w-auto -translate-x-1/2 object-contain drop-shadow-lg"
         aria-hidden
       />
 
