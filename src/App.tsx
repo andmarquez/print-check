@@ -72,8 +72,8 @@ export default function App() {
           />
         </>
       ) : (
-        <main className="relative flex min-h-0 flex-1 gap-4 p-4 lg:p-6">
-          <section className="relative min-w-0 flex-[3]">
+        <main className="relative flex min-h-0 flex-1 gap-4 overflow-hidden p-4 lg:p-6">
+          <section className="relative min-h-0 min-w-0 flex-[3]">
             <ModelViewer
               stlUrl={stlFile?.url ?? null}
               scanning={isScanning}
@@ -98,7 +98,7 @@ export default function App() {
             />
           </section>
 
-          <aside className="scrollbar-thin flex min-w-0 flex-[2] flex-col gap-4 overflow-y-auto pr-1">
+          <aside className="scrollbar-thin flex min-h-0 min-w-0 flex-[2] flex-col gap-4 overflow-y-auto overscroll-y-contain pr-1">
             {phase === 'sizing' && printInputs && originalDimensions && (
               <DesiredSizePanel
                 originalDimensions={originalDimensions}

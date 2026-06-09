@@ -16,6 +16,32 @@ export interface PrinterProfile {
 
 export const PRINTER_PROFILES: PrinterProfile[] = [
   {
+    id: 'flashforge-c5',
+    name: 'Creator 5 Flashforge',
+    printSpeedMmS: 55,
+    buildVolume: { x: 280, y: 250, z: 300 },
+    nozzleSizeMm: 0.4,
+    powerWatts: 190,
+    supportedMaterials: ['PLA', 'ABS', 'PETG'],
+    defaultLayerHeightMm: 0.2,
+    speedQualityFactor: 0.9,
+    printerCost: 599,
+    expectedLifespanHours: 7000,
+  },
+  {
+    id: 'snapmaker-u1',
+    name: 'U1 Snapmaker',
+    printSpeedMmS: 60,
+    buildVolume: { x: 270, y: 270, z: 270 },
+    nozzleSizeMm: 0.4,
+    powerWatts: 200,
+    supportedMaterials: ['PLA', 'PETG', 'ABS', 'TPU'],
+    defaultLayerHeightMm: 0.16,
+    speedQualityFactor: 1.0,
+    printerCost: 899,
+    expectedLifespanHours: 8000,
+  },
+  {
     id: 'bambu-x1c',
     name: 'Bambu Lab X1 Carbon',
     printSpeedMmS: 100,
@@ -94,19 +120,6 @@ export const PRINTER_PROFILES: PrinterProfile[] = [
     expectedLifespanHours: 5000,
   },
   {
-    id: 'flashforge-c5',
-    name: 'Flashforge Creator 5',
-    printSpeedMmS: 55,
-    buildVolume: { x: 280, y: 250, z: 300 },
-    nozzleSizeMm: 0.4,
-    powerWatts: 190,
-    supportedMaterials: ['PLA', 'ABS', 'PETG'],
-    defaultLayerHeightMm: 0.2,
-    speedQualityFactor: 0.9,
-    printerCost: 599,
-    expectedLifespanHours: 7000,
-  },
-  {
     id: 'custom',
     name: 'Custom Printer',
     printSpeedMmS: 50,
@@ -134,7 +147,7 @@ export function getPrinterProfile(
   profileId: string,
   custom?: CustomPrinterSettings | null
 ): PrinterProfile {
-  const base = PRINTER_PROFILES.find((p) => p.id === profileId) ?? PRINTER_PROFILES[4]
+  const base = PRINTER_PROFILES.find((p) => p.id === profileId) ?? PRINTER_PROFILES[0]
   if (profileId !== 'custom' || !custom) return base
 
   return {

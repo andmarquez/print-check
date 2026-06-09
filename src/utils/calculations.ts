@@ -460,7 +460,7 @@ export function defaultPrintInputs(originalMm: ModelDimensions): PrintCalculatio
     desiredSize,
     scaleFactor,
     scaledDimensionsMm,
-    printerProfileId: 'bambu-p1s',
+    printerProfileId: 'flashforge-c5',
     customPrinter: null,
     materialType: 'PLA',
     infillPercentage: 15,
