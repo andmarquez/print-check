@@ -42,7 +42,8 @@ export function STLUploader({ onFileSelect, visible }: STLUploaderProps) {
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
-      className="splash-screen relative flex min-h-0 w-full flex-1 items-center justify-center overflow-hidden"
+      className="splash-screen relative flex min-h-0 w-full flex-1 cursor-pointer overflow-hidden"
+      onClick={() => inputRef.current?.click()}
       onDragOver={(e) => e.preventDefault()}
       onDragEnter={(e) => {
         e.preventDefault()
@@ -52,6 +53,7 @@ export function STLUploader({ onFileSelect, visible }: STLUploaderProps) {
         dragCounter.current--
       }}
       onDrop={onDrop}
+      aria-label="Upload STL file"
     >
       <video
         className="pointer-events-none absolute inset-0 h-full w-full object-cover"
@@ -74,45 +76,6 @@ export function STLUploader({ onFileSelect, visible }: STLUploaderProps) {
         className="pointer-events-none absolute bottom-0 left-1/2 z-10 block origin-bottom -translate-x-1/2 scale-50 drop-shadow-lg"
         aria-hidden
       />
-
-      <div className="relative z-10 flex flex-col items-center px-8 text-center">
-        <svg
-          className="mb-6 drop-shadow-lg"
-          width="32"
-          height="32"
-          viewBox="0 0 28 28"
-          fill="none"
-          aria-hidden
-        >
-          <path
-            d="M6 20 L14 6 L22 20 Z"
-            stroke="#60a5fa"
-            strokeWidth="1.5"
-            strokeLinejoin="round"
-          />
-          <line x1="8" y1="16" x2="20" y2="16" stroke="#fb923c" strokeWidth="1" />
-        </svg>
-
-        <h2 className="font-display text-3xl font-light tracking-tight text-white drop-shadow-md">
-          Upload your STL
-        </h2>
-        <p className="mt-3 max-w-md text-sm leading-relaxed text-zinc-300 drop-shadow">
-          Drop a model file to begin pre-flight analysis. We'll inspect geometry, estimate costs,
-          and recommend optimal print settings.
-        </p>
-
-        <button
-          type="button"
-          onClick={() => inputRef.current?.click()}
-          className="glass-button-primary mt-8 cursor-pointer px-8 py-3.5 text-sm font-medium tracking-wide"
-        >
-          Choose File
-        </button>
-
-        <p className="mt-4 text-[11px] uppercase tracking-[0.2em] text-zinc-400">
-          .STL files only
-        </p>
-      </div>
 
       <input
         ref={inputRef}
