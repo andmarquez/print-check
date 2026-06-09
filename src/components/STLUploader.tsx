@@ -1,5 +1,5 @@
 import { motion } from 'framer-motion'
-import { useCallback, useRef } from 'react'
+import { useCallback, useEffect, useRef } from 'react'
 
 const SPLASH_VIDEO = `${import.meta.env.BASE_URL}assets/splash/bg-video.mp4`
 const SPLASH_EYES = `${import.meta.env.BASE_URL}assets/splash/eyes.gif`
@@ -10,6 +10,7 @@ interface STLUploaderProps {
 }
 
 export function STLUploader({ onFileSelect, visible }: STLUploaderProps) {
+  const sectionRef = useRef<HTMLElement>(null)
   const inputRef = useRef<HTMLInputElement>(null)
   const dragCounter = useRef(0)
 
@@ -33,17 +34,32 @@ export function STLUploader({ onFileSelect, visible }: STLUploaderProps) {
     [handleFiles]
   )
 
+  useEffect(() => {
+    if (!visible) return
+
+    const onPointerMove = (e: PointerEvent) => {
+      const section = sectionRef.current
+      if (!section) return
+      const rect = section.getBoundingClientRect()
+      section.style.setProperty('--x', `${e.clientX - rect.left}px`)
+      section.style.setProperty('--y', `${e.clientY - rect.top}px`)
+    }
+
+    window.addEventListener('pointermove', onPointerMove)
+    return () => window.removeEventListener('pointermove', onPointerMove)
+  }, [visible])
+
   if (!visible) {
     return null
   }
 
   return (
     <motion.section
+      ref={sectionRef}
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
-      className="splash-screen relative flex min-h-0 w-full flex-1 cursor-pointer overflow-hidden"
-      onClick={() => inputRef.current?.click()}
+      className="splash-screen relative flex min-h-0 w-full flex-1 items-center justify-center overflow-hidden"
       onDragOver={(e) => e.preventDefault()}
       onDragEnter={(e) => {
         e.preventDefault()
@@ -53,7 +69,6 @@ export function STLUploader({ onFileSelect, visible }: STLUploaderProps) {
         dragCounter.current--
       }}
       onDrop={onDrop}
-      aria-label="Upload STL file"
     >
       <video
         className="pointer-events-none absolute inset-0 h-full w-full object-cover"
@@ -67,6 +82,15 @@ export function STLUploader({ onFileSelect, visible }: STLUploaderProps) {
       </video>
 
       <div className="splash-scrim pointer-events-none absolute inset-0" aria-hidden />
+      <div className="splash-cursor-glow" aria-hidden />
+
+      <button
+        type="button"
+        className="choose-file-button"
+        onClick={() => inputRef.current?.click()}
+      >
+        Choose File
+      </button>
 
       <img
         src={SPLASH_EYES}
