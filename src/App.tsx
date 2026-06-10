@@ -8,6 +8,7 @@ import { ScanAnimation } from './components/ScanAnimation'
 import { SettingsPanel } from './components/SettingsPanel'
 import { STLUploader } from './components/STLUploader'
 import { TopNav } from './components/layout/TopNav'
+import { ResultsPanelScroll } from './components/layout/ResultsPanelScroll'
 import { useAnalysis } from './hooks/useAnalysis'
 
 export default function App() {
@@ -98,9 +99,8 @@ export default function App() {
             />
           </section>
 
-          <aside className="flex min-h-0 min-w-0 flex-col overflow-hidden">
-            <div className="results-panel-scroll scrollbar-thin min-h-0 flex-1 overflow-y-auto overscroll-y-contain pr-1">
-              <div className="flex flex-col gap-4 pb-4">
+          <aside className="relative min-h-0 min-w-0 overflow-hidden">
+            <ResultsPanelScroll>
                 {phase === 'sizing' && printInputs && originalDimensions && (
                   <DesiredSizePanel
                     originalDimensions={originalDimensions}
@@ -139,8 +139,7 @@ export default function App() {
                     </p>
                   </div>
                 )}
-              </div>
-            </div>
+            </ResultsPanelScroll>
           </aside>
         </main>
       )}

@@ -293,6 +293,7 @@ function Slider({
         step={step}
         value={value}
         onChange={(e) => onChange(parseFloat(e.target.value))}
+        onWheel={(e) => e.preventDefault()}
         className="h-1.5 w-full cursor-pointer accent-electric-blue"
       />
     </div>

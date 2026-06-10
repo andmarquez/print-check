@@ -37,6 +37,7 @@ body,
 
 #root {
   display: flex;
+  flex-direction: column;
   min-height: 0;
   overflow: hidden;
 }
@@ -485,6 +486,7 @@ body {
 }
 
 .results-panel-scroll {
+  overflow-y: scroll;
   -webkit-overflow-scrolling: touch;
   touch-action: pan-y;
 }
