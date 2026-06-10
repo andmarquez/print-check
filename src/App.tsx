@@ -1,7 +1,6 @@
 import { useState } from 'react'
 import { CostCalculator } from './components/CostCalculator'
 import { DesiredSizePanel } from './components/DesiredSizePanel'
-import { ExportReportButton } from './components/ExportReportButton'
 import { ModelViewer } from './components/ModelViewer/ModelViewer'
 import { SavedAnalysesPanel } from './components/SavedAnalysesPanel'
 import { ScanAnimation } from './components/ScanAnimation'
@@ -14,7 +13,6 @@ import { useAnalysis } from './hooks/useAnalysis'
 export default function App() {
   const [settingsOpen, setSettingsOpen] = useState(false)
   const [savedOpen, setSavedOpen] = useState(false)
-  const [saveToast, setSaveToast] = useState<string | null>(null)
 
   const {
     phase,
@@ -28,16 +26,9 @@ export default function App() {
     updatePrintInputs,
     startAnalysis,
     loadSavedRecord,
-    saveCurrentAnalysis,
     registerViewerCanvas,
     getPreviewDataUrl,
   } = useAnalysis()
-
-  const handleSave = async () => {
-    await saveCurrentAnalysis()
-    setSaveToast('Analysis saved locally')
-    setTimeout(() => setSaveToast(null), 2500)
-  }
 
   const isScanning = phase === 'scanning'
   const isComplete = phase === 'complete'
@@ -50,12 +41,6 @@ export default function App() {
   return (
     <div className="flex min-h-0 flex-1 flex-col overflow-hidden">
       <TopNav onSettings={() => setSettingsOpen(true)} />
-
-      {saveToast && (
-        <div className="glass-dark fixed right-6 top-20 z-[80] px-4 py-2 text-xs shadow-lg">
-          {saveToast}
-        </div>
-      )}
 
       {phase === 'empty' ? (
         <>
@@ -99,7 +84,7 @@ export default function App() {
             />
           </section>
 
-          <aside className="relative min-h-0 min-w-0 overflow-hidden">
+          <aside className="results-panel-shell relative min-h-0 min-w-0 overflow-hidden">
             <ResultsPanelScroll>
                 {phase === 'sizing' && printInputs && originalDimensions && (
                   <DesiredSizePanel
@@ -112,23 +97,14 @@ export default function App() {
                 )}
 
                 {analysis && printInputs && isComplete && (
-                  <>
-                    <CostCalculator
-                      inputs={printInputs}
-                      analysis={analysis}
-                      onUpdate={updatePrintInputs}
-                      visible
-                    />
-                    {stlFile && (
-                      <ExportReportButton
-                        file={stlFile}
-                        analysis={analysis}
-                        visible
-                        getPreviewDataUrl={getPreviewDataUrl}
-                        onSave={handleSave}
-                      />
-                    )}
-                  </>
+                  <CostCalculator
+                    inputs={printInputs}
+                    analysis={analysis}
+                    onUpdate={updatePrintInputs}
+                    visible
+                    file={stlFile}
+                    getPreviewDataUrl={getPreviewDataUrl}
+                  />
                 )}
 
                 {(phase === 'scanning' || phase === 'analyzing') && (

@@ -485,8 +485,13 @@ body {
   color: #d4d4d8;
 }
 
+.results-panel-shell {
+  height: 100%;
+  min-height: 0;
+}
+
 .results-panel-scroll {
-  overflow-y: scroll;
+  overflow-y: auto;
   -webkit-overflow-scrolling: touch;
   touch-action: pan-y;
 }

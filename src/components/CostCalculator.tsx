@@ -1,8 +1,9 @@
 import { PRINTER_PROFILES } from '../data/printerProfiles'
 import type { CustomPrinterSettings, PrintCalculationInputs } from '../types/analysis'
 import { QUALITY_PRESETS } from '../types/analysis'
-import type { AnalysisResult } from '../types/analysis'
+import type { AnalysisResult, STLFileInfo } from '../types/analysis'
 import { AnimatedValue } from './AnimatedValue'
+import { ExportReportButton } from './ExportReportButton'
 import { GlassPanel } from './layout/GlassPanel'
 import { SectionHeader } from './layout/SectionHeader'
 
@@ -11,11 +12,20 @@ interface CostCalculatorProps {
   analysis: AnalysisResult
   onUpdate: (updates: Partial<PrintCalculationInputs>) => void
   visible: boolean
+  file?: STLFileInfo | null
+  getPreviewDataUrl?: () => string | null
 }
 
 const MATERIALS = ['PLA', 'PLA+', 'PETG', 'ABS', 'TPU', 'Resin-like PLA']
 
-export function CostCalculator({ inputs, analysis, onUpdate, visible }: CostCalculatorProps) {
+export function CostCalculator({
+  inputs,
+  analysis,
+  onUpdate,
+  visible,
+  file,
+  getPreviewDataUrl,
+}: CostCalculatorProps) {
   if (!visible) return null
 
   const { costBreakdown, materialEstimate, metrics } = analysis
@@ -24,7 +34,7 @@ export function CostCalculator({ inputs, analysis, onUpdate, visible }: CostCalc
   const powerWatts = isCustom ? inputs.customPrinter?.powerWatts ?? 160 : printer?.powerWatts ?? 160
 
   return (
-    <GlassPanel className="p-5">
+    <GlassPanel className="overflow-visible p-5">
       <SectionHeader
         title="Cost Calculator"
         subtitle="PrintPal-style true cost: material, energy, wear, failure buffer"
@@ -172,6 +182,17 @@ export function CostCalculator({ inputs, analysis, onUpdate, visible }: CostCalc
         Formula: (print weight ÷ spool weight) × spool price + (W × hours ÷ 1000) × $/kWh + (printer
         cost ÷ lifespan) × hours, then +{inputs.failureRatePercent}% failure buffer on that subtotal.
       </p>
+
+      {file && (
+        <div className="mt-8">
+          <ExportReportButton
+            file={file}
+            analysis={analysis}
+            visible
+            getPreviewDataUrl={getPreviewDataUrl}
+          />
+        </div>
+      )}
     </GlassPanel>
   )
 }
@@ -252,6 +273,7 @@ function NumField({
           const p = parseFloat(e.target.value)
           if (Number.isFinite(p)) onChange(p)
         }}
+        onWheel={(e) => e.preventDefault()}
         className="glass-input px-3 py-2 text-sm"
       />
     </Field>
