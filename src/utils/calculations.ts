@@ -447,6 +447,8 @@ export function normalizePrintInputs(
     printerCost: inputs.printerCost ?? 699,
     expectedLifespanHours: inputs.expectedLifespanHours ?? 8000,
     failureRatePercent: inputs.failureRatePercent ?? 5,
+    materialGramsOverride: inputs.materialGramsOverride ?? null,
+    printTimeHoursOverride: inputs.printTimeHoursOverride ?? null,
   }
 
   return merged as PrintCalculationInputs
@@ -477,6 +479,8 @@ export function defaultPrintInputs(originalMm: ModelDimensions): PrintCalculatio
     failureRatePercent: 5,
     supportsEnabled: true,
     applyRecommendedOrientation: false,
+    materialGramsOverride: null,
+    printTimeHoursOverride: null,
   }
 }
 

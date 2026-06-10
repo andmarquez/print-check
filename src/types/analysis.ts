@@ -58,6 +58,10 @@ export interface PrintCalculationInputs {
   failureRatePercent: number
   supportsEnabled: boolean
   applyRecommendedOrientation: boolean
+  /** When set, replaces the auto-estimated filament weight used for cost calculations. */
+  materialGramsOverride: number | null
+  /** When set, replaces the auto-estimated print duration used for cost calculations. */
+  printTimeHoursOverride: number | null
 }
 
 /** @deprecated use PrintCalculationInputs */
@@ -137,6 +141,8 @@ export interface SettingsSummary {
 export interface AnalysisMetrics {
   printTimeHours: number
   materialGrams: number
+  autoPrintTimeHours: number
+  autoMaterialGrams: number
   dimensions: ModelDimensions
   volumeCm3: number
   weightGrams: number

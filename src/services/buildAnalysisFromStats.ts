@@ -52,18 +52,25 @@ export function buildAnalysisFromStats(
     supportsEnabled: inputs.supportsEnabled,
   })
 
+  const effectiveMaterialGrams = inputs.materialGramsOverride ?? material.totalGrams
+  const effectivePrintHours = inputs.printTimeHoursOverride ?? time.hours
+  const effectiveMaterial: typeof material = {
+    ...material,
+    totalGrams: effectiveMaterialGrams,
+  }
+
   const energy = estimateEnergyUsage(
     printer.powerWatts,
-    time.hours,
+    effectivePrintHours,
     inputs.electricityCostPerKwh
   )
 
   const costs = calculateTotalCost({
-    materialGrams: material.totalGrams,
+    materialGrams: effectiveMaterialGrams,
     spoolPrice: inputs.spoolPrice,
     spoolWeightKg: inputs.spoolWeightKg,
     energyCost: energy.cost,
-    printHours: time.hours,
+    printHours: effectivePrintHours,
     printerCost: inputs.printerCost,
     expectedLifespanHours: inputs.expectedLifespanHours,
     failureRatePercent: inputs.failureRatePercent,
@@ -99,18 +106,20 @@ export function buildAnalysisFromStats(
             ? 'minimal'
             : 'none'
 
-  const orientation = buildOrientationFromStats(scaledStats, material, time)
+  const orientation = buildOrientationFromStats(scaledStats, effectiveMaterial, time)
 
-  const printSettings = recommendPrintSettings(scaledStats, inputs, material, time)
-  const settingsSummary = buildSettingsSummary(inputs, scaledStats, material, time, energy, costs.totalCost)
+  const printSettings = recommendPrintSettings(scaledStats, inputs, effectiveMaterial, time)
+  const settingsSummary = buildSettingsSummary(inputs, scaledStats, effectiveMaterial, time, energy, costs.totalCost)
 
   return {
     metrics: {
-      printTimeHours: time.hours,
-      materialGrams: material.totalGrams,
+      printTimeHours: effectivePrintHours,
+      materialGrams: effectiveMaterialGrams,
+      autoPrintTimeHours: time.hours,
+      autoMaterialGrams: material.totalGrams,
       dimensions: scaledStats.dimensions,
       volumeCm3: scaledStats.volumeCm3,
-      weightGrams: material.totalGrams,
+      weightGrams: effectiveMaterialGrams,
       materialCost: costs.materialCost,
       difficultyScore,
       riskScore,
@@ -130,10 +139,10 @@ export function buildAnalysisFromStats(
       failureMarkup: costs.failureMarkup,
       subtotalBeforeFailure: costs.subtotalBeforeFailure,
       totalCost: costs.totalCost,
-      printTimeHours: time.hours,
+      printTimeHours: effectivePrintHours,
       energyKwh: energy.kwh,
     },
-    materialEstimate: material,
+    materialEstimate: effectiveMaterial,
     energyEstimate: energy,
     settingsSummary,
   }

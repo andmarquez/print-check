@@ -32,6 +32,12 @@ export function CostCalculator({
   const printer = PRINTER_PROFILES.find((p) => p.id === inputs.printerProfileId)
   const isCustom = inputs.printerProfileId === 'custom'
   const powerWatts = isCustom ? inputs.customPrinter?.powerWatts ?? 160 : printer?.powerWatts ?? 160
+  const materialGrams = inputs.materialGramsOverride ?? metrics.autoMaterialGrams ?? materialEstimate.totalGrams
+  const printTimeHours = inputs.printTimeHoursOverride ?? metrics.autoPrintTimeHours ?? metrics.printTimeHours
+  const autoMaterialGrams = metrics.autoMaterialGrams ?? materialEstimate.totalGrams
+  const autoPrintTimeHours = metrics.autoPrintTimeHours ?? metrics.printTimeHours
+  const isMaterialOverridden = inputs.materialGramsOverride != null
+  const isPrintTimeOverridden = inputs.printTimeHoursOverride != null
 
   return (
     <GlassPanel className="overflow-visible p-5">
@@ -41,6 +47,38 @@ export function CostCalculator({
       />
 
       <div className="mt-4 space-y-5">
+        <CostSection title="Slicer Values">
+          <p className="text-[11px] leading-relaxed text-charcoal-soft">
+            Type the material amount and print time from your slicer. Costs update immediately.
+          </p>
+          <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+            <OverrideNumField
+              label="Material amount (g)"
+              value={materialGrams}
+              step={1}
+              min={0}
+              unit="g"
+              autoDecimals={0}
+              onChange={(v) => onUpdate({ materialGramsOverride: v })}
+              autoValue={autoMaterialGrams}
+              isOverridden={isMaterialOverridden}
+              onReset={() => onUpdate({ materialGramsOverride: null })}
+            />
+            <OverrideNumField
+              label="Print time (hours)"
+              value={printTimeHours}
+              step={0.05}
+              min={0}
+              unit="h"
+              autoDecimals={2}
+              onChange={(v) => onUpdate({ printTimeHoursOverride: v })}
+              autoValue={autoPrintTimeHours}
+              isOverridden={isPrintTimeOverridden}
+              onReset={() => onUpdate({ printTimeHoursOverride: null })}
+            />
+          </div>
+        </CostSection>
+
         <Field label="Printer Profile">
           <select
             value={inputs.printerProfileId}
@@ -111,15 +149,14 @@ export function CostCalculator({
             <NumField label="Spool weight (kg)" value={inputs.spoolWeightKg} step={0.1} min={0.1} onChange={(v) => onUpdate({ spoolWeightKg: v })} />
           </div>
           <ReadOnlyField
-            label="Print weight / filament used (g)"
-            value={`${materialEstimate.totalGrams}g estimated`}
-            hint={`${materialEstimate.modelGrams.toFixed(0)}g model + ${materialEstimate.supportGrams.toFixed(0)}g supports`}
+            label="Filament breakdown (auto)"
+            value={`${materialEstimate.modelGrams.toFixed(0)}g model + ${materialEstimate.supportGrams.toFixed(0)}g supports`}
           />
         </CostSection>
 
         <CostSection title="Energy Settings">
           <div className="grid grid-cols-2 gap-3">
-            <ReadOnlyField label="Print time (hours)" value={`${metrics.printTimeHours.toFixed(2)}h estimated`} />
+            <ReadOnlyField label="Print time used" value={`${printTimeHours.toFixed(2)}h`} />
             <ReadOnlyField label="Printer power (W)" value={`${powerWatts}W`} />
             <NumField label="Electricity ($/kWh)" value={inputs.electricityCostPerKwh} step={0.01} onChange={(v) => onUpdate({ electricityCostPerKwh: v })} />
             <ReadOnlyField label="Energy used (kWh)" value={`${costBreakdown.energyKwh.toFixed(3)} estimated`} />
@@ -202,6 +239,67 @@ function CostSection({ title, children }: { title: string; children: React.React
     <div className="glass-inset p-3">
       <h4 className="text-[10px] font-semibold uppercase tracking-[0.15em] text-electric-blue">{title}</h4>
       <div className="mt-3 space-y-3">{children}</div>
+    </div>
+  )
+}
+
+function OverrideNumField({
+  label,
+  value,
+  step = 1,
+  min,
+  max,
+  unit,
+  autoDecimals,
+  onChange,
+  autoValue,
+  isOverridden,
+  onReset,
+  hint,
+}: {
+  label: string
+  value: number
+  step?: number
+  min?: number
+  max?: number
+  unit: string
+  autoDecimals: number
+  onChange: (v: number) => void
+  autoValue: number
+  isOverridden: boolean
+  onReset: () => void
+  hint?: string
+}) {
+  return (
+    <div>
+      <Field label={label}>
+        <input
+          type="number"
+          value={value}
+          step={step}
+          min={min}
+          max={max}
+          onChange={(e) => {
+            const parsed = parseFloat(e.target.value)
+            if (Number.isFinite(parsed)) onChange(parsed)
+          }}
+          onWheel={(e) => e.preventDefault()}
+          className="glass-input px-3 py-2 text-sm"
+        />
+      </Field>
+      {isOverridden ? (
+        <button
+          type="button"
+          onClick={onReset}
+          className="mt-1 cursor-pointer text-[10px] text-electric-blue-soft hover:text-electric-blue"
+        >
+          Use auto estimate ({autoValue.toFixed(autoDecimals)}
+          {unit})
+        </button>
+      ) : (
+        <p className="mt-1 text-[10px] text-charcoal-soft">Auto estimate from geometry and print settings</p>
+      )}
+      {hint && <p className="mt-1 text-[10px] text-charcoal-soft">{hint}</p>}
     </div>
   )
 }
